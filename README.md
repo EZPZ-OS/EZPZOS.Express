@@ -13,6 +13,7 @@
 2. React Native Tools by `Microsoft`
 3. Simple React Snippets by `Burke Holland`
 4. Markdown Preview Enhanced by `Yiyi Wang`
+5. #region folding for VS Code by `maptz`
 
 ### Git Repository
 Make sure the following Git Repository is cloned:
