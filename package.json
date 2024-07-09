@@ -23,7 +23,8 @@
     "ezpzos.core": "file:../EZPZOS.Core",
     "rimraf": "^5.0.8",
     "ts-node": "^10.9.2",
-    "typescript": "^5.5.3"
+    "typescript": "^5.5.3",
+    "uuid": "^10.0.0"
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",
