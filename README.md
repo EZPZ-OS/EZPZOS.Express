@@ -117,3 +117,71 @@ To **Log** properly in this project, follow the below steps:
 	```Typescript
 	this.Logger.Log('Run','This is a Test.', LogLevel.INFO);
 	```
+
+## Code Standards
+### Rules
+#### [Naming Convention](#naming-convention)
+All variables or classnames except for packages or system defined cases should use Camel Case naming convention and should not contain spaces or underscore between words.
+E.g.
+CamelCaseWord
+
+Invalid examples:
+1. camelCaseWord
+2. Camelcaseword
+3. camel_case_word
+4. ccw
+
+Abbreviations should be avoided as much as possible. If abbreviations can't be avoided, consult admin is required before Pull Request.
+
+#### Formatting Code
+A `.prettierrc` file has been loaded to the project to make sure everyone will result in the same formatting. Thus, `Prettier` extensino is required to be installed. No one should use their own formatting settings.
+
+#### File structure
+TBD
+
+
+### Pull-Request Rejection Reason Table
+<table border=1> 
+<tr>
+<th>Reason</th>
+<th>Description</th>
+<th>Mark Deduction</th>
+</tr>
+<tr>
+<td>Missing Comments</td>
+<td>Commit code without comments. 
+<ol>
+<li>Comments are required for all functions created. </li>
+<li>Comments are required for logic related codes such as if statements. </li>
+<li>Comments are optional for properties and attributes if they are predefined in ERD or Class Diagram. </li>
+<li>Comments are optional for local variables. </li>
+</ol>
+</td>
+<td>TBD</td>
+</tr>
+<tr>
+<td>Naming Convention</td>
+<td>Violates one of the above <a href="#naming-convention">Naming Convention</a></td>
+<td>TBD</td>
+</tr>
+<tr>
+<td>Syntax Error</td>
+<td>Has obvious syntax error either can be detected by the code editor, code complier or developers</td>
+<td>TBD</td>
+</tr>
+<tr>
+<td>Runtime Error</td>
+<td>App crashes whilst running the feature. This excludes when your code breaks other feature that is not in the unit testing. This applies only when your feature is broken due to some cases.</td>
+<td>TBD</td>
+</tr>
+<tr>
+<td>Redundant codes / Testing codes</td>
+<td>Leaving console.log() in the commit. Or commented codes. Or complicated logic that can be simplified.</td>
+<td>TBD</td>
+</tr>
+<tr>
+<td>Unit testing</td>
+<td>0 unit testing. Or lack of unit testing cases. Or bad unit testing cases.</td>
+<td>TBD</td>
+</tr>
+</table>
