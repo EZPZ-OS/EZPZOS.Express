@@ -22,12 +22,52 @@ Make sure the following Git Repository is cloned:
 	./EZPZOS.Core
 
 ## Getting Started
-1. Installing all the packges
-	Run:
-	```Powershell
-	npm i
-	```
+### Installing all the packges
+Run:
+```Powershell
+npm i
+```
+### Database Setup
+1. Install <a href="https://www.microsoft.com/en-au/sql-server/sql-server-downloads"> SQL Server </a>
+<img src="./git readme img/SQL Server Download.png"/>
+Once the intaller is download, run the installer.
+Choose `Basic(基本)` from the three options.
+Choose a install path and click on Install.
 
+2. Intall <a href="https://learn.microsoft.com/en-us/sql/ssms/download-sql-server-management-studio-ssms?view=sql-server-ver16"> SQL Server management Studio </a>
+<img src="./git readme img/SSMS Download.png"/>
+Download and install.
+
+### Initiate Database
+1. Run SSMS.
+Click on connect button shown from the below screenshot:
+<img src="./git readme img/SSMS/SSMS 1.png"/>
+
+2. On the popup window, make sure the server name is either `.` or `localhost`
+Make sure the Authentication is set to Windows Authentication.
+Click on `Connect`
+<img src="./git readme img/SSMS/SSMS 2.png"/>
+
+3. If succeed, you will see connection from the left `Object Explorer`
+Click on `New Query` butto nfrom the below screenshot:
+<img src="./git readme img/SSMS/SSMS 3.png"/>
+
+4. On the `query screen`, you can either `drag and drop` the `.sql` file from `./database/SQL_SERVER_CREATE.sql` to the query screen or `copy and paste` content from the file to the `query screen`
+<img src="./git readme img/SSMS/SSMS 4.png"/>
+
+5. Click on the `Execute` button from the top or just simply press `F5` to run query.
+<img src="./git readme img/SSMS/SSMS 5.png"/>
+
+6. You should be able to see the following message upon succeed:
+<img src="./git readme img/SSMS/SSMS 6.png"/>
+
+7. You should be able to see the created database in the `Object Explorer`. (You might need to hit `Refersh` button to see)
+<img src="./git readme img/SSMS/SSMS 8.png"/>
+<img src="./git readme img/SSMS/SSMS 7.png"/>
+
+8. From this point on, you can Run any query agasint Database `EZPZOS`.
+Just make sure when you are on the `query screen`, the selected database is `EZPZOS`:
+<img src="./git readme img/SSMS/SSMS 9.png"/>
 
 ### Running the Project
 ```Powershell
