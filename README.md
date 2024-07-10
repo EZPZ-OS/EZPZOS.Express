@@ -41,7 +41,6 @@ Find `Run & Debug` button on the vs code left panel or use key combination `Ctrl
 
 On the new popuped panel, select `Server Debug` then click on the green triangle button to start debugging.
 <img src="/git readme img/Server Debug.png">
-![Server Debug](./git readme img/Server Debug.png)
 
 ## Code Usage
 ### Logging
