@@ -1,0 +1,11 @@
+version: '3.4'
+
+services:
+  ezpzos-database:
+    image: ${DOCKER_REGISTRY-}ezpzosdatabase:dev
+    environment:
+      - DOTNET_ENVIRONMENT=Development
+    volumes:
+      - database:/var/opt/mssql/data/:nocopy
+volumes:
+    database:

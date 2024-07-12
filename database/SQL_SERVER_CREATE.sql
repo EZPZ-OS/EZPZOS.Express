@@ -39,7 +39,7 @@ FROM [master].[sys].[databases]
 WHERE [name]= N'EZPZOS') and 
 NOT EXISTS (SELECT * 
 FROM INFORMATION_SCHEMA.TABLES 
-WHERE  TABLE_NAME = 'AppUser'))
+WHERE  TABLE_NAME = 'User'))
 
 Begin
 use [EZPZOS];
