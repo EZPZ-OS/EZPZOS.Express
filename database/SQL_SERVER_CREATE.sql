@@ -36,13 +36,18 @@ GO
 
 IF (EXISTS (SELECT [name]
 FROM [master].[sys].[databases] 
-WHERE [name]= N'EZPZOS') and 
-NOT EXISTS (SELECT * 
+WHERE [name]= N'EZPZOS'))
+Begin
+use [EZPZOS];
+End;
+
+Go
+
+IF(NOT EXISTS (SELECT * 
 FROM INFORMATION_SCHEMA.TABLES 
 WHERE  TABLE_NAME = 'User'))
 
 Begin
-use [EZPZOS];
 
 Create Table [dbo].[User](
 	[Id] UNIQUEIDENTIFIER NOT NULL,
