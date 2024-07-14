@@ -18,6 +18,7 @@
 3. Simple React Snippets by `Burke Holland`
 4. Markdown Preview Enhanced by `Yiyi Wang`
 5. #region folding for VS Code by `maptz`
+6. Todo Tree by `Gruntfuggly`
 
 ### Git Repository
 
