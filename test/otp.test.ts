@@ -3,14 +3,10 @@ import request from 'supertest';
 import express, { Express } from 'express';
 import otpRouter from '../src/routes/otp';
 import * as dotenv from 'dotenv';
-import twilio from 'twilio';
 import { ConnectionPool } from 'mssql';
 
 // Load environment variables
 dotenv.config();
-
-// Mock Twilio
-jest.mock('twilio');
 
 // Mock Database Connection
 jest.mock('mssql', () => {
@@ -32,26 +28,46 @@ const app: Express = express();
 app.use(express.json());
 app.use('/otp', otpRouter);
 
-describe('OTP Endpoints', () => {
-  let twilioClientMock: any;
+// Mock Twilio
+jest.mock('twilio', () => {
+  const createMock = jest.fn();
+  const verificationChecksCreateMock = jest.fn();
 
-  beforeAll(() => {
-    // Mock Twilio Client
-    twilioClientMock = {
+  return {
+    __esModule: true,
+    default: jest.fn().mockImplementation(() => ({
       verify: {
         v2: {
-          services: jest.fn().mockReturnThis(),
-          verifications: {
-            create: jest.fn().mockResolvedValue({}),
-          },
-          verificationChecks: {
-            create: jest.fn().mockResolvedValue({ status: 'approved' }),
-          },
+          services: jest.fn().mockReturnValue({
+            verifications: {
+              create: createMock,
+            },
+            verificationChecks: {
+              create: verificationChecksCreateMock,
+            },
+          }),
         },
       },
-    };
+    })),
+    createMock,
+    verificationChecksCreateMock,
+  };
+});
 
-    (twilio as jest.Mock).mockImplementation(() => twilioClientMock);
+describe('OTP Endpoints', () => {
+  let createMock: jest.Mock;
+  let verificationChecksCreateMock: jest.Mock;
+
+  beforeAll(() => {
+    const twilio = require('twilio');
+    createMock = twilio.createMock;
+    verificationChecksCreateMock = twilio.verificationChecksCreateMock;
+
+    // Set up the mock implementation for verifications.create
+    createMock.mockResolvedValue({});
+
+    // Set up the mock implementation for verificationChecks.create
+    verificationChecksCreateMock.mockResolvedValue({ status: 'approved' });
   });
 
   afterEach(() => {
@@ -63,9 +79,12 @@ describe('OTP Endpoints', () => {
       .post('/otp/send-otp')
       .send({ mobile: '+61473001475' });
 
+    // Check if the request was successful
     expect(res.status).toBe(200);
     expect(res.text).toContain('OTP sent successfully');
-    expect(twilioClientMock.verify.v2.services().verifications.create).toHaveBeenCalledWith({
+
+    // Ensure the mock method was called with the correct parameters
+    expect(createMock).toHaveBeenCalledWith({
       to: '+61473001475',
       channel: 'sms',
     });
@@ -76,9 +95,12 @@ describe('OTP Endpoints', () => {
       .post('/otp/verify-otp')
       .send({ mobile: '+61473001475', otp: '123456' });
 
+    // Check if the request was successful
     expect(res.status).toBe(200);
     expect(res.text).toContain('OTP verified successfully');
-    expect(twilioClientMock.verify.v2.services().verificationChecks.create).toHaveBeenCalledWith({
+
+    // Ensure the mock method was called with the correct parameters
+    expect(verificationChecksCreateMock).toHaveBeenCalledWith({
       to: '+61473001475',
       code: '123456',
     });
@@ -86,7 +108,7 @@ describe('OTP Endpoints', () => {
 
   it('should fail to verify OTP with wrong code', async () => {
     // Mock the verification check to fail
-    twilioClientMock.verify.v2.services().verificationChecks.create.mockResolvedValueOnce({
+    verificationChecksCreateMock.mockResolvedValueOnce({
       status: 'pending',
     });
 
@@ -94,6 +116,7 @@ describe('OTP Endpoints', () => {
       .post('/otp/verify-otp')
       .send({ mobile: '+61473001475', otp: 'wrong-code' });
 
+    // Check if the request was unsuccessful
     expect(res.status).toBe(400);
     expect(res.text).toContain('Invalid or expired OTP');
   });

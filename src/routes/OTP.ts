@@ -1,24 +1,18 @@
 // File: src/routes/otp.ts
 import express, { Request, Response, Router } from 'express';
-import { ConnectionPool, Request as SqlRequest, config as SqlConfig } from 'mssql';
+import { ConnectionPool, config as SqlConfig } from 'mssql';
 import twilio from 'twilio';
 import * as dotenv from 'dotenv';
+import { DefaultOTPVerifiationValues } from 'ezpzos.core';
 
 dotenv.config();
 
 const router: Router = express.Router();
 
-const accountSidDefaultValue = 'AC63e06f89a641026e2cc4045d7c27082e';
-const authTokenDefaultValue = '508a6e0fdfe4aca8d6575d1fc2b6be02';
-const serviceSidDefaultValue = 'VA341cf7d3ecf7ff33274231890ba72d75';
-
-
-const accountSid = process.env.TWILIO_ACCOUNT_SID || accountSidDefaultValue; 
-const authToken = process.env.TWILIO_AUTH_TOKEN || authTokenDefaultValue; 
-const serviceSid = process.env.TWILIO_SERVICE_SID || serviceSidDefaultValue;
+const accountSid = process.env.TWILIO_ACCOUNT_SID || DefaultOTPVerifiationValues.accountSidDefaultValue; 
+const authToken = process.env.TWILIO_AUTH_TOKEN || DefaultOTPVerifiationValues.authTokenDefaultValue; 
+const serviceSid = process.env.TWILIO_SERVICE_SID || DefaultOTPVerifiationValues.serviceSidDefaultValue;
 const client = twilio(accountSid, authToken);
-
-//console.log(`Service SID: ${serviceSid}`);
 
 const dbConfig: SqlConfig = {
     user: process.env.DB_USER || '',

@@ -1,7 +1,6 @@
 // File: src/index.ts
 import express, { Express, Request, Response } from 'express';
-import { LogHandler } from 'ezpzos.core';
-import { LogLevel } from 'ezpzos.core/src/Common/Constants';
+import { LogHandler, LogLevel } from 'ezpzos.core';
 import otpRouter from './routes/otp';
 import dotenv from 'dotenv';
 
