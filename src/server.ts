@@ -1,13 +1,13 @@
 // File: src/index.ts
 import express, { Express, Request, Response } from 'express';
-import { LogHandler, LogLevel } from 'ezpzos.core';
+import { LogHandler, LogLevel, DefaultPortNumber} from 'ezpzos.core';
 import otpRouter from './routes/otp';
 import dotenv from 'dotenv';
 
 // Load environment variables from .env file
 dotenv.config();
 
-const port = process.env.PORT || 8000;
+const port = process.env.PORT || DefaultPortNumber;
 const app: Express = express();
 app.use(express.json());
 
