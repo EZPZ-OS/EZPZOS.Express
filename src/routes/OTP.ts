@@ -7,11 +7,13 @@ import { DafaultOTPVerificationValues, LogHandler, LogLevel } from 'ezpzos.core'
 dotenv.config();
 
 const router: Router = express.Router();
+
 const logger = new LogHandler('otp.ts');
 
 const accountSid = process.env.TWILIO_ACCOUNT_SID || DafaultOTPVerificationValues.AccountSidDefaultValue; 
 const authToken = process.env.TWILIO_AUTH_TOKEN || DafaultOTPVerificationValues.AuthTokenDefaultValue; 
 const serviceSid = process.env.TWILIO_SERVICE_SID || DafaultOTPVerificationValues.ServiceSidDefaultValue;
+
 const client = twilio(accountSid, authToken);
 
 const dbConfig: SqlConfig = {
@@ -32,6 +34,7 @@ pool.connect().then(() => {
     logger.Log('pool.connect', 'Database connected', LogLevel.INFO);
 }).catch(err => {
     logger.Log('pool.connect', `Database connection failed: ${err}`, LogLevel.ERROR);
+
 });
 
 interface SendOtpRequest extends Request {
