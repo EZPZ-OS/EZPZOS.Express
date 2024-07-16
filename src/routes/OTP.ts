@@ -1,17 +1,19 @@
-// File: src/routes/otp.ts
 import express, { Request, Response, Router } from 'express';
 import { ConnectionPool, config as SqlConfig } from 'mssql';
 import twilio from 'twilio';
 import * as dotenv from 'dotenv';
-import { DefaultOTPVerifiationValues } from 'ezpzos.core';
+import { DafaultOTPVerificationValues, LogHandler, LogLevel } from 'ezpzos.core';
 
 dotenv.config();
 
 const router: Router = express.Router();
 
-const accountSid = process.env.TWILIO_ACCOUNT_SID || DefaultOTPVerifiationValues.accountSidDefaultValue; 
-const authToken = process.env.TWILIO_AUTH_TOKEN || DefaultOTPVerifiationValues.authTokenDefaultValue; 
-const serviceSid = process.env.TWILIO_SERVICE_SID || DefaultOTPVerifiationValues.serviceSidDefaultValue;
+const logger = new LogHandler('otp.ts');
+
+const accountSid = process.env.TWILIO_ACCOUNT_SID || DafaultOTPVerificationValues.AccountSidDefaultValue; 
+const authToken = process.env.TWILIO_AUTH_TOKEN || DafaultOTPVerificationValues.AuthTokenDefaultValue; 
+const serviceSid = process.env.TWILIO_SERVICE_SID || DafaultOTPVerificationValues.ServiceSidDefaultValue;
+
 const client = twilio(accountSid, authToken);
 
 const dbConfig: SqlConfig = {
@@ -29,9 +31,10 @@ const dbConfig: SqlConfig = {
 const pool = new ConnectionPool(dbConfig);
 
 pool.connect().then(() => {
-    console.log('Database connected');
+    logger.Log('pool.connect', 'Database connected', LogLevel.INFO);
 }).catch(err => {
-    console.error('Database connection failed: ', err);
+    logger.Log('pool.connect', `Database connection failed: ${err}`, LogLevel.ERROR);
+
 });
 
 interface SendOtpRequest extends Request {
@@ -58,7 +61,7 @@ router.post('/send-otp', async (req: SendOtpRequest, res: Response) => {
 
         res.status(200).send('OTP sent successfully');
     } catch (error) {
-        console.error('Error sending OTP:', error);
+        logger.Log('send-otp', `Error sending OTP: ${error}`, LogLevel.ERROR);
         res.status(500).send('Error sending OTP');
     }
 });
@@ -78,7 +81,7 @@ router.post('/verify-otp', async (req: VerifyOtpRequest, res: Response) => {
             res.status(400).send('Invalid or expired OTP');
         }
     } catch (error) {
-        console.error('Error verifying OTP:', error);
+        logger.Log('verify-otp', `Error verifying OTP: ${error}`, LogLevel.ERROR);
         res.status(500).send('Error verifying OTP');
     }
 });
