@@ -5,7 +5,7 @@
   "main": "src/server.js",
   "scripts": {
     "test": "jest",
-    "build": "rimraf dist && babel src --out-dir dist --copy-files --ignore src/**/*.test.js",
+    "build": "rimraf dist && babel src --out-dir dist --copy-files --ignore src/**/*.test.ts",
     "prestart": "npm run build",
     "start": "npx ts-node dist/server.ts",
     "preserve": "npm run build"

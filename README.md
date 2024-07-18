@@ -25,8 +25,9 @@
 Make sure the following Git Repository is cloned:
 
 1. EZPZOS.Core is on the same level of this project
-   ./BE
-   ./EZPZOS.Core
+   ./EZPZOS.Express
+   ./EZPZOS.Core (Name this folder EZPZOS.Core.Express)
+2. You need to run "npm run build:Express" against EZPZOS.Core(.Express) project  
 
 ## Getting Started
 
