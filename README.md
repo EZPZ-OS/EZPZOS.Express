@@ -26,8 +26,8 @@ Make sure the following Git Repository is cloned:
 
 1. EZPZOS.Core is on the same level of this project
    ./EZPZOS.Express
-   ./EZPZOS.Core (Name this folder EZPZOS.Core.Express)
-2. You need to run "npm run build:Express" against EZPZOS.Core(.Express) project  
+   ./EZPZOS.Core
+2. You need to run "npm run build" against EZPZOS.Core project  
 
 ## Getting Started
 
@@ -193,6 +193,12 @@ To **Log** properly in this project, follow the below steps:
     ```Typescript
     this.Logger.Log('Run','This is a Test.', LogLevel.INFO);
     ```
+
+### Dynamic Export
+You will find in the `index.ts` file in project `EZPZOS.Core`, some of the exports are marked as Express Only. For those dynamic exports, you need to follow what's written in the `example/example.ts`.
+
+To explain, these modules are exported dynamically during runtime.
+Thus the exported module would be a `Promised import` object. You would need to either use chain function `then` to get the module or use `await` key word.
 
 ## Code Standards
 

@@ -1,7 +1,15 @@
 import { v4 } from "uuid";
 import { User, UserRepository } from "ezpzos.core";
 
-let repo = new UserRepository();
+// Example 1 async callback
+UserRepository().then(UserRepository => new UserRepository!.UserRepository().GetUserById("AFF71323-92EF-44DC-A6B9-DAC0FB63BF0B", (result, user) => {}));
+
+// Example 2  await call
+const UserRepositoryType = (await UserRepository())?.UserRepository;
+if (!UserRepositoryType) {
+	//return; End the function while you are using
+}
+const repo = new UserRepositoryType!();
 let user = new User();
 user.Id = v4();
 user.Username = "test2";
