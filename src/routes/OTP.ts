@@ -2,7 +2,7 @@ import express, { Request, Response, Router } from 'express';
 import { ConnectionPool, config as SqlConfig } from 'mssql';
 import twilio from 'twilio';
 import * as dotenv from 'dotenv';
-import { DafaultOTPVerificationValues, LogHandler, LogLevel } from 'ezpzos.core';
+import { DefaultOTPVerificationValues, LogHandler, LogLevel } from 'ezpzos.core';
 
 dotenv.config();
 
@@ -10,9 +10,9 @@ const router: Router = express.Router();
 
 const logger = new LogHandler('otp.ts');
 
-const accountSid = process.env.TWILIO_ACCOUNT_SID || DafaultOTPVerificationValues.AccountSidDefaultValue; 
-const authToken = process.env.TWILIO_AUTH_TOKEN || DafaultOTPVerificationValues.AuthTokenDefaultValue; 
-const serviceSid = process.env.TWILIO_SERVICE_SID || DafaultOTPVerificationValues.ServiceSidDefaultValue;
+const accountSid = process.env.TWILIO_ACCOUNT_SID || DefaultOTPVerificationValues.AccountSidDefaultValue; 
+const authToken = process.env.TWILIO_AUTH_TOKEN || DefaultOTPVerificationValues.AuthTokenDefaultValue; 
+const serviceSid = process.env.TWILIO_SERVICE_SID || DefaultOTPVerificationValues.ServiceSidDefaultValue;
 
 const client = twilio(accountSid, authToken);
 
@@ -34,7 +34,6 @@ pool.connect().then(() => {
     logger.Log('pool.connect', 'Database connected', LogLevel.INFO);
 }).catch(err => {
     logger.Log('pool.connect', `Database connection failed: ${err}`, LogLevel.ERROR);
-
 });
 
 interface SendOtpRequest extends Request {
