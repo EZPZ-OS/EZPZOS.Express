@@ -1,7 +1,8 @@
 // File: src/index.ts
 import express, { Express, Request, Response } from 'express';
 import { LogHandler, LogLevel, DefaultPortNumber} from 'ezpzos.core';
-import otpRouter from './routes/otp';
+import otpRouter from './routes/OTP';
+import authRouter from './routes/auth'; // Import the auth routes
 import dotenv from 'dotenv';
 
 // Load environment variables from .env file
@@ -20,6 +21,7 @@ app.get('/hi', (req: Request, res: Response) => {
 });
 
 app.use('/otp', otpRouter);
+app.use('/auth', authRouter);
 
 app.listen(port, () => {
     new LogHandler('server.ts').Log('app.listen', `now listening on port ${port}`, LogLevel.INFO);

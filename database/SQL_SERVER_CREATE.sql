@@ -29,9 +29,11 @@ WHERE [name]= N'EZPZOS'))
 Begin
 
 Create Database [EZPZOS]
+
 ALTER DATABASE [EZPZOS] SET RECOVERY SIMPLE
 
 END;
+
 GO
 
 IF (EXISTS (SELECT [name]
