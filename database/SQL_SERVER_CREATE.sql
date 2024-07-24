@@ -154,6 +154,36 @@ WITH ( FILLFACTOR = 50, IGNORE_DUP_KEY = OFF)
 CREATE NONCLUSTERED INDEX [ParentId] ON [dbo].[Event] ([ParentId] ASC)
 WITH ( FILLFACTOR = 50, IGNORE_DUP_KEY = OFF)
 
+
+-- Config
+Create Table [dbo].[Config](
+	[Id] UNIQUEIDENTIFIER NOT NULL,
+	[Name] NVARCHAR(255) NOT NULL,
+	[Value] NVARCHAR(MAX) NULL,
+	[Description] NVARCHAR(255)  NULL,
+	[ParentId] UNIQUEIDENTIFIER NOT NULL,
+	[ParentTable] NVarChar(50) NOT NULL,
+	[IsDeleted] BIT NOT NULL,
+	[CreatedTimestamp] datetime NULL,
+	[CreatedUserId] UNIQUEIDENTIFIER NULL,
+	[UpdatedTimestamp] datetime NULL,
+	[UpdatedUserId] UNIQUEIDENTIFIER NULL,
+)
+
+ALTER TABLE  [dbo].[Config]
+ADD CONSTRAINT [PK_Config] PRIMARY KEY CLUSTERED  ([Id] ASC)
+WITH ( FILLFACTOR = 70, IGNORE_DUP_KEY = OFF)
+
+CREATE NONCLUSTERED INDEX [Name] ON [dbo].[Config] ([Name] ASC)
+WITH ( FILLFACTOR = 50, IGNORE_DUP_KEY = OFF)
+
+
+CREATE NONCLUSTERED INDEX [ParentId] ON [dbo].[Config] ([ParentId] ASC)
+WITH ( FILLFACTOR = 50, IGNORE_DUP_KEY = OFF)
+
+
+
+
 -- OTP
 CREATE TABLE [dbo].[OTP]
 	(
