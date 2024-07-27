@@ -9,23 +9,23 @@ Values(Convert(UniqueIdentifier,'2A66057D-F4E5-4E2B-B2F1-38C51A96D385'),'test','
 End;
 
 
-IF NOT EXISTS (SELECT 1 FROM [dbo].[Role] WHERE (Code = 'Test'))
+IF NOT EXISTS (SELECT 1 FROM [dbo].[Role] WHERE (Code = '0'))
 BEGIN
 insert into [dbo].[Role]
-Values(NewID(),'Test','Test',0,null,null,null,null);
+Values(NewID(),'0','User',0,null,null,null,null);
 END;
 
-IF NOT EXISTS (SELECT 1 FROM [dbo].[Role] WHERE (Code = 'Test2'))
+IF NOT EXISTS (SELECT 1 FROM [dbo].[Role] WHERE (Code = '1'))
 BEGIN
 insert into [dbo].[Role]
-Values(NewID(),'Test2','Test2',0,null,null,null,null);
+Values(NewID(),'1','Test2',0,null,null,null,null);
 END;
 
 
 
 declare @userId uniqueidentifier = (Select Id from [dbo].[User] where Username = 'test');
-declare @roleId uniqueidentifier = (Select Id from [dbo].[Role] where Code = 'Test');
-declare @roleId2 uniqueidentifier = (Select Id from [dbo].[Role] where Code = 'Test2');
+declare @roleId uniqueidentifier = (Select Id from [dbo].[Role] where Code = '0');
+declare @roleId2 uniqueidentifier = (Select Id from [dbo].[Role] where Code = '1');
 
 
 IF NOT EXISTS (SELECT 1 FROM [dbo].[UserRole] WHERE (UserId = @userId and RoleId=@roleId))

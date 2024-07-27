@@ -82,7 +82,7 @@ WITH ( FILLFACTOR = 50, IGNORE_DUP_KEY = OFF)
 
 Create Table [dbo].[Role](
 	[Id] UNIQUEIDENTIFIER NOT NULL,
-	[Code] NVARCHAR(255) NOT NULL,
+	[Code] Int NOT NULL,
 	[Description] NVARCHAR(500) NOT NULL,
 	[IsDeleted] BIT NOT NULL,
 	[CreatedTimestamp] datetime NULL,
@@ -130,7 +130,7 @@ ALTER TABLE [dbo].[UserRole] WITH NOCHECK
 
 Create Table [dbo].[Event](
 	[Id] UNIQUEIDENTIFIER NOT NULL,
-	[EventCode] NVARCHAR(20) NOT NULL,
+	[EventCode] int NOT NULL,
 	[EventTime] datetime NOT NULL,
 	[ParentId] UNIQUEIDENTIFIER NOT NULL,
 	[ParentTable] NVARCHAR(255) NOT NULL,
