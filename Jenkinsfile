@@ -5,11 +5,17 @@ pipeline{
             steps{
                 script{
                     sh '''
-                        echo hello world
+                        npm i
                         
                     '''
                 }
             }
+        }
+    }
+    post{
+        always{
+            cleanWs()
+            deleteDir()
         }
     }
 }
