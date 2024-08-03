@@ -39,5 +39,8 @@ RUN apt-get update && \
 RUN echo 'export PATH="$PATH:/opt/mssql-tools/bin"' >> ~/.bashrc && \
     /bin/bash -c "source ~/.bashrc"
 
+RUN apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
 # Run Microsoft SQL Server and initialization script (at the same time)
 CMD bash ./entrypoint.sh
