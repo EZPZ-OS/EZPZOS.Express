@@ -1,5 +1,8 @@
-# Choose ubuntu version
+# Choose the base image
 FROM mcr.microsoft.com/mssql/server:2022-latest
+
+# Switch to root user
+USER root
 
 # Create app directory
 WORKDIR /usr/src/app
@@ -22,8 +25,19 @@ ENV MSSQL_PID Express
 # Expose port externally from docker-compose.yml
 EXPOSE 1433
 
+# Install dependencies in separate steps
+RUN apt-get update && \
+    apt-get install -y curl gnupg
+
+RUN curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add -
+
+RUN curl https://packages.microsoft.com/config/ubuntu/20.04/prod.list | tee /etc/apt/sources.list.d/msprod.list
+
+RUN apt-get update && \
+    ACCEPT_EULA=Y apt-get install -y msodbcsql17 mssql-tools unixodbc-dev
+
+RUN echo 'export PATH="$PATH:/opt/mssql-tools/bin"' >> ~/.bashrc && \
+    /bin/bash -c "source ~/.bashrc"
 
 # Run Microsoft SQL Server and initialization script (at the same time)
-
-
 CMD bash ./entrypoint.sh
