@@ -25,20 +25,22 @@ ENV MSSQL_PID Express
 # Expose port externally from docker-compose.yml
 EXPOSE 1433
 
-# Install dependencies in separate steps
+# 切换到 root 用户并安装依赖
+USER root
+
+# 更新包列表和安装依赖
 RUN apt-get update && \
-    apt-get install -y curl gnupg
+    apt-get install -y curl apt-transport-https gnupg2 software-properties-common
 
-RUN curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add -
+# 添加 Microsoft 的密钥和源列表
+RUN curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add - && \
+    curl https://packages.microsoft.com/config/ubuntu/20.04/prod.list > /etc/apt/sources.list.d/mssql-release.list
 
-RUN curl https://packages.microsoft.com/config/ubuntu/20.04/prod.list | tee /etc/apt/sources.list.d/msprod.list
-
+# 更新 apt-get 并安装 sqlcmd 工具
 RUN apt-get update && \
-    ACCEPT_EULA=Y apt-get install -y msodbcsql17 mssql-tools unixodbc-dev
+    ACCEPT_EULA=Y apt-get install -y msodbcsql17 mssql-tools
 
-RUN echo 'export PATH="$PATH:/opt/mssql-tools/bin"' >> ~/.bashrc && \
-    /bin/bash -c "source ~/.bashrc"
-
+# 清理
 RUN apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
