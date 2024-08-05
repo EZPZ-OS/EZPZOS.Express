@@ -1,6 +1,7 @@
 import express, { Request, Response, Router } from "express";
 import { LogHandler, LogLevel, OrderItem, OrderItemRepository, ResponseCode } from "ezpzos.core";
 import { ResponseHandler } from "../Handler/ResponseHandler";
+import { RepsoitoryHandler } from "../Handler/RepositoryHandler";
 
 const router: Router = express.Router();
 
@@ -16,7 +17,8 @@ router.get("/orderId/:orderId", async (req: OrderItemRequest, res: Response) => 
 	const { orderId } = req.params;
 
 	try {
-		await new OrderItemRepository().GetOrderItemsByOrderId(orderId, true, async orderItems => {
+		let repo = new (await RepsoitoryHandler.OrderItemRepository())();
+		await repo.GetOrderItemsByOrderId(orderId, true, async orderItems => {
 			if (orderItems) {
 				let responseOrderItems = [];
 				for (let orderItem of orderItems) {
@@ -56,7 +58,9 @@ router.post("/userId/:userId", async (req: OrderItemRequest, res: Response) => {
 
 	try {
 		let parseOrderItem = new OrderItem(LogLevel.ALL, orderItem);
-		await new OrderItemRepository().Save(parseOrderItem, userId, false, false, true, async result => {
+
+		let repo = new (await RepsoitoryHandler.OrderItemRepository())();
+		await repo.Save(parseOrderItem, userId, false, false, true, async result => {
 			logger.Log("post", `OrderItem saving result:${result}`, LogLevel.INFO);
 
 			if (result) {
@@ -88,7 +92,7 @@ router.put("/:orderItemId/userId/:userId", async (req: OrderItemRequest, res: Re
 	const { orderItem } = req.body;
 
 	try {
-		let repo = new OrderItemRepository();
+		let repo = new (await RepsoitoryHandler.OrderItemRepository())();
 		await repo.GetById(orderItemId, "OrderItem", async orderItem => {
 			if (!orderItem) {
 				ResponseHandler.formatResponse(
@@ -136,7 +140,9 @@ router.delete("/:orderItemId/userId/:userId", async (req: OrderItemRequest, res:
 	try {
 		let orderItem = new OrderItem();
 		orderItem.Id = orderItemId;
-		await new OrderItemRepository().Save(orderItem, userId, false, true, true, async result => {
+		
+		let repo = new (await RepsoitoryHandler.OrderItemRepository())();
+		await repo.Save(orderItem, userId, false, true, true, async result => {
 			logger.Log("post", `OrderItem deleting result:${result}`, LogLevel.INFO);
 
 			if (result) {

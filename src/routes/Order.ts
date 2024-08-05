@@ -2,6 +2,7 @@ import express, { Request, Response, Router } from "express";
 import { LogHandler, LogLevel, Order, OrderItem, OrderRepository, ResponseCode } from "ezpzos.core";
 import { ResponseHandler } from "../Handler/ResponseHandler";
 import OrderItemRouter from "./OrderItem";
+import { RepsoitoryHandler } from "../Handler/RepositoryHandler";
 
 const router: Router = express.Router();
 
@@ -43,7 +44,10 @@ router.post("/userId/:userId", async (req: OrderRequest, res: Response) => {
 
 		// Insert Order to the db
 		logger.Log("post", "Saving order to the db", LogLevel.INFO);
-		await new OrderRepository().Save(parsedInOrder, userId, false, false, true, async result => {
+
+		let repo = new (await RepsoitoryHandler.OrderRepository())();
+
+		await repo.Save(parsedInOrder, userId, false, false, true, async result => {
 			logger.Log("post", `Order saving result:${result}`, LogLevel.INFO);
 
 			if (result) {
@@ -75,7 +79,8 @@ router.put("/:orderId/userId/:userId", async (req: OrderRequest, res: Response) 
 	const { orderId, userId } = req.params;
 
 	try {
-		let repo = new OrderRepository();
+		let repo = new (await RepsoitoryHandler.OrderRepository())();
+
 		await repo.GetById(orderId, "Order", async orderItem => {
 			if (!orderItem) {
 				ResponseHandler.formatResponse(
@@ -159,7 +164,9 @@ router.delete("/:orderId/userId/:userId", async (req: OrderRequest, res: Respons
 	try {
 		let order = new Order();
 		order.Id = orderId;
-		await new OrderRepository().Save(order, userId, true, false, true, async result => {
+
+		let repo = new (await RepsoitoryHandler.OrderRepository())();
+		await repo.Save(order, userId, true, false, true, async result => {
 			logger.Log("post", `Order Deleting result:${result}`, LogLevel.INFO);
 
 			if (result) {
@@ -190,7 +197,8 @@ router.get("/:orderId", async (req: OrderRequest, res: Response) => {
 	const { orderId } = req.params;
 
 	try {
-		await new OrderRepository().GetOrderById(orderId, true, async dataobject => {
+		let repo = new (await RepsoitoryHandler.OrderRepository())();
+		await repo.GetOrderById(orderId, true, async dataobject => {
 			if (dataobject) {
 				let order = new Order(LogLevel.ALL, dataobject);
 				ResponseHandler.formatResponse(res, Number(ResponseCode.SUCCEED_CREATED), "Order Found", order);
