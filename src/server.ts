@@ -2,7 +2,7 @@
 import express, { Express, Request, Response } from "express";
 import { LogHandler, LogLevel, DefaultPortNumber } from "ezpzos.core";
 //import otpRouter from "./routes/OTP";
-import orderRouter from "./routes/Order";
+import OrderRouter from "./routes/Order";
 import dotenv from "dotenv";
 
 // Load environment variables from .env file
@@ -20,7 +20,7 @@ app.get("/hi", (req: Request, res: Response) => {
 	res.send("Worked!");
 });
 
-app.use("/order", orderRouter);
+app.use("/order", OrderRouter);
 
 //app.use("/otp", otpRouter);
 

@@ -1,5 +1,6 @@
 import { Send, Response } from "express-serve-static-core";
 import { ResponseCode } from "ezpzos.core";
+import { IDataObject } from "ezpzos.core/lib/Interface/IDataObject";
 
 export class ResponseHandler {
 	/**
@@ -9,7 +10,7 @@ export class ResponseHandler {
 	 * @param {JSON} data return data in JSON
 	 * @returns String of response
 	 */
-	public static formatResponse(response: Response, responseCode: number, info: string, data: any) {
+	public static formatResponse(response: Response, responseCode: number, info: string, data: IDataObject | any) {
 		switch (responseCode.toString()) {
 			case ResponseCode.ACCESS_DENIED:
 				this.formatErrorResponse(response, responseCode, "Access denied due to role permission.", info, data);
@@ -106,13 +107,13 @@ export class ResponseHandler {
 		responseCode: number,
 		errorMsg: string,
 		info: string,
-		data: any
+		data: IDataObject | any
 	) {
 		response.status(responseCode).send({
 			statusCode: responseCode,
 			error: errorMsg,
 			info: info,
-			data: data
+			data: Array.isArray(data) ? data.map((item) => item.ToJson()) : data?.ToJson()
 		});
 	}
 
@@ -121,13 +122,13 @@ export class ResponseHandler {
 		responseCode: number,
 		msg: string,
 		info: string,
-		data: any
+		data: IDataObject | any
 	) {
 		response.status(responseCode).send({
 			statusCode: responseCode,
 			message: msg,
 			info: info,
-			data: data
+			data:  Array.isArray(data) ? data.map((item) => item.ToJson()) : data?.ToJson()
 		});
 	}
 }
