@@ -1,6 +1,25 @@
 # BE
 
 ## Pre-requisite
+### Sqlcmd and Sqlservr
+to run on vm machine(e.g ubuntu, MacOs, Debian etc.), it needs to be installed [sqlcmd and sql server](https://learn.microsoft.com/en-us/sql/linux/sql-server-linux-setup-tools?view=sql-server-ver16&tabs=redhat-install)
+
+### setup sql
+```
+# Setup db type and user passoword
+sudo /opt/mssql/bin/mssql-conf setup
+# set mssql to bin
+echo 'export PATH="$PATH:/opt/mssql-tools18/bin"' >> ~/.bashrc
+source ~/.bashrc
+# run sqlcmd 
+sqlcmd -S localhost -U sa -P EZPZOSAdmin! -C
+```
+
+### Run and build EZPZOS.Express
+Before running EZPZOS.Express, EZPZOS.Core should be installed already.
+Then EZPZOS.Express is executed by running `npm install` and `npm run build`.
+
+Finally, run npm start then the Batabase can listen on port 8000 that defined in `.env`
 
 ### Visual Studio Code extension
 
