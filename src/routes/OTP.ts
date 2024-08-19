@@ -66,14 +66,13 @@ router.post("/verify-otp", async (req: VerifyOtpRequest, res: Response) => {
 			.verificationChecks.create({ to: normalizedMobile, code: otp });
 
 		if (verification_check.status === "approved") {
-
 			// Create a JWT containing the UUID and mobile number
-			const otpToken:string = jwt.sign({ mobile: normalizedMobile }, jwtSecret, {
+			const otpToken: string = jwt.sign({ mobile: normalizedMobile }, jwtSecret, {
 				expiresIn: JWTOTPTokenExpiringPeriod // Set expiration in seconds
 			});
 
 			// Calculate expiration time (in seconds since Unix epoch)
-            const exp = Math.floor(Date.now() / 1000) + JWTOTPTokenExpiringPeriod;
+			const exp = Math.floor(Date.now() / 1000) + JWTOTPTokenExpiringPeriod;
 
 			// Send the token and expiration time back to the client
 			res.status(200).send({ message: "OTP verified successfully", otpToken, exp });
