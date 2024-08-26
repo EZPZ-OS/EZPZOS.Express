@@ -17,20 +17,18 @@ export const verifyOtpToken = (
         return false;
     }
 
+    // Verify if otpToken is valid
     let decodedToken: JwtPayload;
     try {
         decodedToken = jwt.verify(otpToken, SECRET_KEY) as JwtPayload;
     } catch (err) {
-        logger.Log("AuthService", "Invalid JWT token", LogLevel.WARN);
-        res.status(401).send("Invalid or expired token");
-        return false;
-    }
-
-    // Check if the token is expired
-    const currentTime = Math.floor(Date.now() / 1000); // Current time in seconds
-    if (decodedToken.exp && decodedToken.exp < currentTime) {
-        logger.Log("AuthService", "JWT token has expired", LogLevel.WARN);
-        res.status(403).send("Token has expired");
+        if (err instanceof jwt.TokenExpiredError) {
+            logger.Log("AuthService", "JWT token has expired", LogLevel.WARN);
+            res.status(403).send("Token has expired");
+        } else {
+            logger.Log("AuthService", "Invalid JWT token", LogLevel.WARN);
+            res.status(401).send("Invalid token");
+        }
         return false;
     }
 

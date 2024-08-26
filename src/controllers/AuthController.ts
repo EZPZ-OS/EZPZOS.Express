@@ -43,7 +43,6 @@ const SECRET_KEY = DefaultJWTSecretKey;
 //*Signup function
 export const signup = async (req: SignupRequest, res: Response) => {
 	let { mobile, username, email, otpTarget } = req.body;
-	console.log("otpTarget:", otpTarget)
 	
 	// Get the token from query parameters 
 	const otpToken = req.query.token as string;
