@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import dotenv from "dotenv";
-import jwt, { JwtPayload } from "jsonwebtoken";
+import jwt from "jsonwebtoken";
 import {
 	DefaultJWTSecretKey,
 	LogHandler,
@@ -12,8 +12,10 @@ import {
 	UserRole,
 	Role,
 	JWTLoginTokenExpiringPeriod,
-	PhoneNumberNormalizer
+	PhoneNumberNormalizer,
+	OTPType
 } from "ezpzos.core";
+import { verifyOtpToken } from "../services/AuthService";
 
 dotenv.config();
 
@@ -22,16 +24,17 @@ const logger = new LogHandler("authController.ts");
 interface SignupRequest extends Request {
 	body: {
 		mobile: string;
-		otp?: string;
 		username: string;
 		email: string;
+		otpTarget: OTPType
 	};
 }
 
 interface LoginRequest extends Request {
 	body: {
 		mobile: string;
-		otp?: string;
+		otpToken: string;
+		otpTarget: OTPType
 	};
 }
 
@@ -39,36 +42,18 @@ const SECRET_KEY = DefaultJWTSecretKey;
 
 //*Signup function
 export const signup = async (req: SignupRequest, res: Response) => {
-	let { mobile, username, email } = req.body;
+	let { mobile, username, email, otpTarget } = req.body;
 	
 	// Get the token from query parameters 
 	const otpToken = req.query.token as string;
+
+	// Verify the token and otpType
+	if (!verifyOtpToken(otpToken, SECRET_KEY, otpTarget, res)) return;
 
 	try {
 		if (!mobile || !email || !username) {
 			logger.Log("signup", "Missing required fields for user creation", LogLevel.WARN);
 			return res.status(422).send("Missing required fields for user creation");
-		}
-
-		// Verify the token
-		if (!otpToken) {
-			logger.Log("signup", "JWT token is missing", LogLevel.WARN);
-			return res.status(404).send("Authorization token is missing");
-		}
-
-		let decodedToken: JwtPayload;
-		try {
-			decodedToken = jwt.verify(otpToken, SECRET_KEY) as JwtPayload;
-		} catch (err) {
-			logger.Log("signup", "Invalid JWT token", LogLevel.WARN);
-			return res.status(401).send("Invalid or expired token");
-		}
-
-		// Check if the token is expired
-		const currentTime = Math.floor(Date.now() / 1000); // Current time in seconds
-		if (decodedToken.exp && decodedToken.exp < currentTime) {
-			logger.Log("signup", "JWT token has expired", LogLevel.WARN);
-			return res.status(403).send("Token has expired");
 		}
 
 		// Normalize the phone number
@@ -135,7 +120,10 @@ export const signup = async (req: SignupRequest, res: Response) => {
 
 //*Login by mobile function
 export const mobileLogin = async (req: LoginRequest, res: Response) => {
-	let { mobile } = req.body;
+	let { mobile, otpToken, otpTarget } = req.body;
+
+	// Verify the token and otpType
+	if (!verifyOtpToken(otpToken, SECRET_KEY, otpTarget, res)) return;
 
 	try {
 		// Normalize the phone number
@@ -149,13 +137,15 @@ export const mobileLogin = async (req: LoginRequest, res: Response) => {
 		}
 		const repo = new userRepositoryType();
 
-		//check if mobile is existed in database or not
-		repo.GetUserByMobile(normalizedMobile, (result: boolean, user: User | null | undefined) => {
-			if (!user) {
+		// Check if mobile exists in the database
+		repo.GetUserByMobile(normalizedMobile, (result: boolean, user: User | null | undefined, errorCode?: number, errorMessage?: string) => {
+			if (!result || !user) {
+				const status = errorCode || 404;
+				const message = errorMessage || "User not found";
 				logger.Log("login", "User not found", LogLevel.WARN);
-				return res.status(404).send("User not found");
+				return res.status(status).send({ error: message });
 			}
-			//generate jwt token and pass user back to frontend
+			// Generate jwt token and pass user back to frontend
 			const token = jwt.sign({ ...user }, SECRET_KEY, {
 				expiresIn: JWTLoginTokenExpiringPeriod
 			});
