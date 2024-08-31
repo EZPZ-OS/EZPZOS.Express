@@ -1,0 +1,58 @@
+name: Build and Deploy
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - '**/*'
+
+jobs:
+  build-Core:
+    if: ${{ github.repository == 'EZPZ-OS/EZPZOS.Core' }}
+    runs-on: ubuntu-latest
+    outputs:
+      Core_build_status: ${{ steps.install_build_core.outcome }}
+    steps:
+      - name: Checkout Core repository
+        uses: actions/checkout@v2
+        with:
+          repository: EZPZ-OS/EZPZOS.Core
+          ref: main
+
+      - name: Install and build Core
+        run: |
+          npm install
+          npm run build
+
+  build-Web:
+    needs: build-Core
+    if: ${{ github.repository == 'EZPZ-OS/EZPZOS.Web' && needs.build-core.outputs.core_build_status == 'success' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Web repository
+        uses: actions/checkout@v2
+        with:
+          repository: EZPZ-OS/EZPZOS.Web
+          ref: main
+
+      - name: Install and build Web
+        run: |
+          npm install
+          npm run build
+
+  build-Express:
+    needs: build-Core
+    if: ${{ github.repository == 'EZPZ-OS/EZPZOS.Express' && needs.build-core.outputs.core_build_status == 'success' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Express repository
+        uses: actions/checkout@v2
+        with:
+          repository: EZPZ-OS/EZPZOS.Express
+          ref: main
+
+      - name: Install and build Express
+        run: |
+          npm install
+          npm run build
