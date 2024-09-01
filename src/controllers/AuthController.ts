@@ -103,7 +103,7 @@ export const signup = async (req: SignupRequest, res: Response) => {
 					expiresIn: JWTLoginTokenExpiringPeriod
 				});
 				logger.Log("signup", "User created successfully", LogLevel.INFO);
-				res.status(201).send({ auth: true, token, message: "User created successfully" });
+				res.status(201).send({ auth: true, token, user, message: "User created successfully" });
 			} else {
 				// Handle specific errors based on errorCode and errorMessage
 				if (errorCode && errorMessage) {
@@ -150,7 +150,7 @@ export const mobileLogin = async (req: LoginRequest, res: Response) => {
 				expiresIn: JWTLoginTokenExpiringPeriod
 			});
 			logger.Log("login", "OTP verified successfully", LogLevel.INFO);
-			return res.status(200).send({ auth: true, token, message: "User login successfully" });
+			return res.status(200).send({ auth: true, token, user, message: "User login successfully" });
 		});
 	} catch (err) {
 		logger.Log("login", `Error: ${err}`, LogLevel.ERROR);
