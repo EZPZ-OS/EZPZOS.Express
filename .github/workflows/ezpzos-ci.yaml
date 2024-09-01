@@ -15,7 +15,7 @@ jobs:
       Core_build_status: ${{ steps.install_build_core.outcome }}
     steps:
       - name: Checkout Core repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           repository: EZPZ-OS/EZPZOS.Core
           ref: main
@@ -31,7 +31,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Web repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           repository: EZPZ-OS/EZPZOS.Web
           ref: main
@@ -47,7 +47,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Express repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           repository: EZPZ-OS/EZPZOS.Express
           ref: main
