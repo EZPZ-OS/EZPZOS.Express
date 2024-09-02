@@ -39,7 +39,7 @@ pipeline {
                 }
             }
         }
-        stage('deploy') {
+        stage('deploy uat') {
             steps {
                 script {
                     // deploy image
@@ -48,6 +48,63 @@ pipeline {
                         CLUSTER_NAME="uat-antoneo-cluster"
                         SERVICE_NAME="uat-antoneo-service"
                         TASK_DEFINITION_NAME="uat-antoneo-task"
+                        NEW_IMAGE="${ECR_ENDPOINT}/${REPO_NAME}:${env.BUILD_ID}"
+                        REGION="ap-southeast-2"
+                        sudo yum install -y jq
+                        
+                        docker run \
+                            -e AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID} \
+                            -e AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY} \
+                            amazon/aws-cli:latest \
+                            ecs describe-task-definition --task-definition \$TASK_DEFINITION_NAME --region \$REGION | \
+                        
+                        jq --arg IMAGE "\$NEW_IMAGE" '.taskDefinition | \
+                            .containerDefinitions[0].image = \$IMAGE | \
+                            del(.taskDefinitionArn) | \
+                            del(.revision) | \
+                            del(.status) | \
+                            del(.requiresAttributes) | \
+                            del(.compatibilities) | \
+                            del(.registeredAt) | \
+                            del(.registeredBy)' \
+                        > new-task-def.json
+
+                        NEW_TASK_DEFINITION=\$(docker run \
+                            -e AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID} \
+                            -e AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY} \
+                            -v \$(pwd):/workdir \
+                            amazon/aws-cli:latest \
+                            ecs register-task-definition \
+                                --family \$TASK_DEFINITION_NAME \
+                                --cli-input-json file:///workdir/new-task-def.json \
+                                --query 'taskDefinition.taskDefinitionArn' \
+                                --output text \
+                                --region \$REGION)
+
+                        docker run \
+                            -e AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID} \
+                            -e AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY} \
+                            amazon/aws-cli:latest \
+                            ecs update-service --cluster \$CLUSTER_NAME --service \$SERVICE_NAME --task-definition \$NEW_TASK_DEFINITION --region \$REGION
+
+                        rm -f new-task-def.json
+                        """
+                    }
+                }
+            }
+        }
+        stage('deploy prod'){
+            steps {
+                script {
+                    timeout(time: 10, unit: 'MINUTES') {
+                        input message: 'Do you want to proceed with deploying to Prod S3?', ok: 'Yes, proceed'
+                    }
+                    // deploy image
+                    withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: "${AWS_MAIN_CREDENTIALS_ID}"]]) {
+                        sh """
+                        CLUSTER_NAME="prod-antoneo-cluster"
+                        SERVICE_NAME="prod-antoneo-service"
+                        TASK_DEFINITION_NAME="prod-antoneo-task"
                         NEW_IMAGE="${ECR_ENDPOINT}/${REPO_NAME}:${env.BUILD_ID}"
                         REGION="ap-southeast-2"
                         sudo yum install -y jq
