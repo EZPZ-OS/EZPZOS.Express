@@ -97,7 +97,7 @@ pipeline {
             steps {
                 script {
                     timeout(time: 10, unit: 'MINUTES') {
-                        input message: 'Do you want to proceed with deploying to Prod S3?', ok: 'Yes, proceed'
+                        //input message: 'Do you want to proceed with deploying to Prod S3?', ok: 'Yes, proceed'
                     }
                     // deploy image
                     withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: "${AWS_MAIN_CREDENTIALS_ID}"]]) {
