@@ -13,7 +13,7 @@
 
 #### Recommended
 
-1. Test Explorer UI by `Holger Benl`
+1. Test Explorer UI by `Holger Benl`.
 2. React Native Tools by `Microsoft`
 3. Simple React Snippets by `Burke Holland`
 4. Markdown Preview Enhanced by `Yiyi Wang`
