@@ -6,7 +6,7 @@
 
 #### Mandatory
 
-1. Jest by `Orta`  
+1. Jest by `Orta`.  
 2. Prettier - Code formatter by `Prettier`
  <h3 style="color:Red">Warning: Any PR with format changes will be rejected. <br> Any PR without proper formatting will be rejected.</h3>
 3. TypeScript Debugger by `kakumei`
