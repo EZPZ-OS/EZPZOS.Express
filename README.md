@@ -103,7 +103,7 @@ You will need to delete the volume from the `Volumes` tab since the create scrip
    <img src="./git readme img/SSMS Download.png"/>
    Download and install.
 
-### [Initiate Database](#SSMS)
+### [Initiate Database](#SSMS).
 
 1. Run SSMS.
    Click on connect button shown from the below screenshot:
