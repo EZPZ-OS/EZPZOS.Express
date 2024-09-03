@@ -14,7 +14,12 @@ source ~/.bashrc
 # run sqlcmd 
 sqlcmd -S localhost -U sa -P EZPZOSAdmin! -C
 ```
-
+### setup Database
+after setting up sqlcmd and sql server, use sqlcmd set create database
+```
+sqlcmd -U sa -P EZPZOSAdmin! -d master -i database/SQL_SERVER_CREATE.sql
+sqlcmd -U sa -P EZPZOSAdmin! -d master -i database/Testing\ Data.sql
+``` 
 ### Run and build EZPZOS.Express
 Before running EZPZOS.Express, EZPZOS.Core should be installed already.
 Then EZPZOS.Express is executed by running `npm install` and `npm run build`.
