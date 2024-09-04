@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { sendOtp, verifyOtp } from "../controllers/OTPController";
 import { mobileLogin, signup } from "../controllers/AuthController";
-import AuthMiddleware from "../middlewares/AuthMiddleware"
+import AuthMiddleware from "../middlewares/AuthMiddleware";
 import BookingRouter from "./private/Booking";
 import UserRouter from "./private/User";
 
@@ -20,5 +20,4 @@ privateRouter.use(AuthMiddleware);
 privateRouter.use("/booking", BookingRouter);
 privateRouter.use("/user", UserRouter);
 
-
-export { publicRouter, privateRouter }
+export { publicRouter, privateRouter };
