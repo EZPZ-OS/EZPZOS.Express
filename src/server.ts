@@ -23,8 +23,11 @@ app.get('/hi', (req: Request, res: Response) => {
     res.send('Worked!');
 });
 
+// login signup sendOtp, getMenu...
+app.use('/public', public);
 app.use('/otp', otpRouter);
-app.use('/auth', authRouter);
+app.use('/auth', authMiddleware,authRouter);
+app.use('/booking', authMiddleware, bookingRouter);
 
 app.listen(port, () => {
     new LogHandler('server.ts').Log('app.listen', `now listening on port ${port}`, LogLevel.INFO);
