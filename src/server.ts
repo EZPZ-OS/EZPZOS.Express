@@ -3,6 +3,7 @@ import express, { Express, Request, Response } from 'express';
 import { LogHandler, LogLevel, DefaultPortNumber} from 'ezpzos.core';
 import dotenv from 'dotenv';
 import cors from 'cors';
+import { privateRouter, publicRouter } from './routes/routes';
 
 // Load environment variables from .env file
 dotenv.config();

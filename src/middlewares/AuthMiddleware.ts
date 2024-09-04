@@ -20,14 +20,14 @@ const verifyToken = (req: Request, res: Response, next: NextFunction) => {
 			// Check if the token is expired
 			const currentTime = Math.floor(Date.now() / 1000);
 			if (decoded.exp && decoded.exp < currentTime) {
-				return res.status(401).json({ message: "Access Denied: Token Expired" });
+				return res.status(403).json({ message: "Access Denied: Token Expired" });
 			}
 		} else {
-			return res.status(400).json({ message: "Invalid Token" });
+			return res.status(401).json({ message: "Invalid Token" });
 		}
 		next(); // Proceed to the next middleware or route handler
 	} catch (err) {
-		return res.status(400).json({ message: "Invalid Token" });
+		return res.status(401).json({ message: "Invalid Token" });
 	}
 };
 export default verifyToken;
