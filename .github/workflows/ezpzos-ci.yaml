@@ -20,6 +20,11 @@ jobs:
           repository: EZPZ-OS/EZPZOS.Core
           ref: main
 
+      - name: Set up environment with GitHub Token
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}  # Access token from secrets
+        run: echo "GitHub Token available"
+
       - name: Install and build Core
         id: install_build_core
         run: |
@@ -43,6 +48,11 @@ jobs:
           repository: EZPZ-OS/EZPZOS.Web
           ref: main
 
+      - name: Set up environment with GitHub Token
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}  # Access token from secrets
+        run: echo "GitHub Token available"
+
       - name: Install and build Web
         id: install_build_web
         run: |
@@ -65,6 +75,11 @@ jobs:
         with:
           repository: EZPZ-OS/EZPZOS.Express
           ref: main
+
+      - name: Set up environment with GitHub Token
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}  # Access token from secrets
+        run: echo "GitHub Token available"
 
       - name: Install and build Express
         id: install_build_express
