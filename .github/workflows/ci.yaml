@@ -1,0 +1,92 @@
+name: Build and Deploy
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - '**/*'
+
+jobs:
+  build-Core:
+    if: ${{ github.repository == 'EZPZ-OS/EZPZOS.Core' }}
+    runs-on: ubuntu-latest
+    outputs:
+      Core_build_status: ${{ steps.set_core_status.outputs.status }}
+    steps:
+      - name: Checkout Core repository
+        uses: actions/checkout@v4
+        with:
+          repository: EZPZ-OS/EZPZOS.Core
+          ref: main
+
+      - name: Set up environment with GitHub Token
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}  # Access token from secrets
+        run: echo "GitHub Token available"
+
+      - name: Install and build Core
+        id: install_build_core
+        run: |
+          npm install
+          npm run build
+
+      - name: Set Core build status
+        id: set_core_status
+        run: echo "status=${{ job.status }}" >> $GITHUB_OUTPUT
+
+  build-Web:
+    needs: build-Core
+    if: ${{ github.repository == 'EZPZ-OS/EZPZOS.Web' && needs.build-Core.outputs.Core_build_status == 'success' }}
+    runs-on: ubuntu-latest
+    outputs:
+      Web_build_status: ${{ steps.set_web_status.outputs.status }}
+    steps:
+      - name: Checkout Web repository
+        uses: actions/checkout@v4
+        with:
+          repository: EZPZ-OS/EZPZOS.Web
+          ref: main
+
+      - name: Set up environment with GitHub Token
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}  # Access token from secrets
+        run: echo "GitHub Token available"
+
+      - name: Install and build Web
+        id: install_build_web
+        run: |
+          npm install
+          npm run build
+
+      - name: Set Web build status
+        id: set_web_status
+        run: echo "status=${{ job.status }}" >> $GITHUB_OUTPUT
+
+  build-Express:
+    needs: build-Core
+    if: ${{ github.repository == 'EZPZ-OS/EZPZOS.Express' && needs.build-Core.outputs.Core_build_status == 'success' }}
+    runs-on: ubuntu-latest
+    outputs:
+      Express_build_status: ${{ steps.set_express_status.outputs.status }}
+    steps:
+      - name: Checkout Express repository
+        uses: actions/checkout@v4
+        with:
+          repository: EZPZ-OS/EZPZOS.Express
+          ref: main
+
+      - name: Set up environment with GitHub Token
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}  # Access token from secrets
+        run: echo "GitHub Token available"
+
+      - name: Install and build Express
+        id: install_build_express
+        run: |
+          npm install
+          npm run build
+
+      - name: Set Express build status
+        id: set_express_status
+        run: echo "status=${{ job.status }}" >> $GITHUB_OUTPUT
