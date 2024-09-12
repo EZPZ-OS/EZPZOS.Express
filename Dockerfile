@@ -26,7 +26,7 @@ RUN apt-get update && \
 EXPOSE 1433
 
 
-# Run Microsoft SQL Server and initialization script (at the same time)
+# Run Microsoft SQL Server and initialization script (at the same time).
 
 
 CMD npm start

@@ -32,7 +32,7 @@ Finally, run npm start then the Batabase can listen on port 8000 that defined in
 
 #### Recommended
 
-1. Test Explorer UI by `Holger Benl`
+1. Test Explorer UI by `Holger Benl`.
 2. React Native Tools by `Microsoft`
 3. Simple React Snippets by `Burke Holland`
 4. Markdown Preview Enhanced by `Yiyi Wang`
@@ -122,7 +122,7 @@ You will need to delete the volume from the `Volumes` tab since the create scrip
    <img src="./git readme img/SSMS Download.png"/>
    Download and install.
 
-### [Initiate Database](#SSMS)
+### [Initiate Database](#SSMS).
 
 1. Run SSMS.
    Click on connect button shown from the below screenshot:
