@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import dotenv from "dotenv";
+import twilio from "twilio";
 import jwt from "jsonwebtoken";
 import {
 	DefaultJWTSecretKey,
@@ -8,7 +9,9 @@ import {
 	User,
 	JWTLoginTokenExpiringPeriod,
 	PhoneNumberNormalizer,
-	OTPType
+	OTPType,
+	DefaultOTPVerificationValues,
+	OTPTokenExpiringPeriod,
 } from "ezpzos.core";
 import { verifyOtpToken } from "../services/AuthService";
 import { UserService } from "../services/UserService";
@@ -34,7 +37,82 @@ interface LoginRequest extends Request {
 	};
 }
 
+interface SendOtpRequest extends Request {
+	body: {
+		mobile: string;
+		otpType: string;
+	};
+}
+
+interface VerifyOtpRequest extends Request {
+	body: {
+		mobile: string;
+		otp: string;
+		otpType: OTPType;
+	};
+}
+
+const accountSid = process.env.ACCOUNT_SID ?? DefaultOTPVerificationValues.AccountSidDefaultValue;
+const authToken = process.env.AUTH_TOKEN ?? DefaultOTPVerificationValues.AuthTokenDefaultValue;
+const serviceSid = process.env.SERVICE_SID ?? DefaultOTPVerificationValues.ServiceSidDefaultValue;
+const client = twilio(accountSid, authToken);
+
 const SECRET_KEY = DefaultJWTSecretKey;
+
+//*Sending OTP function
+export const sendOtp = async (req: SendOtpRequest, res: Response) => {
+	const { mobile } = req.body;
+
+	try {
+		// Normalize the phone number
+		const normalizer = new PhoneNumberNormalizer(mobile);
+		const normalizedMobile = normalizer.normalize();
+
+		// Send OTP using Twilio Verify service
+		await client.verify.v2.services(serviceSid).verifications.create({ to: normalizedMobile, channel: "sms" });
+		res.status(200).send({ message: "OTP sent successfully" });
+	} catch (error) {
+		logger.Log("send-otp", `Error sending OTP: ${error}`, LogLevel.ERROR);
+		res.status(500).send("Error sending OTP");
+	}
+};
+
+//*Verifying OTP function
+export const verifyOtp = async (req: VerifyOtpRequest, res: Response) => {
+	const { mobile, otp, otpType } = req.body;
+
+	try {
+		// Normalize the phone number
+		const normalizer = new PhoneNumberNormalizer(mobile);
+		const normalizedMobile = normalizer.normalize();
+
+		// Verify OTP using Twilio Verify service
+		const verification_check = await client.verify.v2
+			.services(serviceSid)
+			.verificationChecks.create({ to: normalizedMobile, code: otp });
+
+		if (verification_check.status === "approved") {
+			// Create a JWT containing the otpType and mobile number
+			const otpToken: string = jwt.sign({ mobile: normalizedMobile, otpType: otpType }, SECRET_KEY, {
+				expiresIn: OTPTokenExpiringPeriod // Set expiration in seconds
+			});
+
+			// Calculate expiration time (in seconds since Unix epoch)
+			const exp = Math.floor(Date.now() / 1000) + OTPTokenExpiringPeriod;
+
+            // Create a navigation attribute depends on the otpType for frontend to react accordingly
+			const otpTarget = otpType
+
+			// Send the token and expiration time back to the client
+			res.status(200).send({ message: "OTP verified successfully", otpToken, exp, otpTarget });
+		} else {
+			res.status(400).send("Invalid or expired OTP");
+		}
+	} catch (error) {
+		logger.Log("verify-otp", `Error verifying OTP: ${error}`, LogLevel.ERROR);
+		res.status(500).send("Error verifying OTP");
+	}
+};
 
 //*Signup function
 export const signup = async (req: SignupRequest, res: Response) => {
@@ -67,13 +145,6 @@ export const signup = async (req: SignupRequest, res: Response) => {
 		if (!result || !user) {
 			logger.Log("signup", `Error: ${errorMessage}`, LogLevel.ERROR);
 			return res.status(errorCode || 500).send({ message: errorMessage || "Error creating user" });
-		}
-
-		// Assign user role (e.g., "User")
-		const userRole = await UserService.assignUserRole(user);
-		if (!userRole) {
-			logger.Log("signup", "Error assigning user role", LogLevel.ERROR);
-			return res.status(500).send("Error assigning user role");
 		}
 
 		// Generate JWT token
