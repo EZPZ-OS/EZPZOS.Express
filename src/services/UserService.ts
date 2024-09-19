@@ -1,4 +1,4 @@
-import { UserRepository, RoleRepository, RoleCode, User, UserRole, Role } from "ezpzos.core";
+import { UserRepository, RoleRepository, UserRoleRepository, RoleCode, User, UserRole, IUserRole } from "ezpzos.core";
 
 export class UserService {
 	// Utility method to get user repository
@@ -19,6 +19,14 @@ export class UserService {
 		return new roleRepositoryType();
 	}
 
+	static async getUserRoleRepository() {
+		const userRoleRepositoryType = (await UserRoleRepository())?.UserRoleRepository;
+		if (!userRoleRepositoryType) {
+			throw new Error("UserRoleRepository is not defined");
+		}
+		return new userRoleRepositoryType();
+	}
+
 	// Create and save a new user into the database, and assign a role before saving
 	static async createUser(
 		userData: Partial<User>
@@ -35,7 +43,7 @@ export class UserService {
 			user.Avatar = "[binary,...,..]";
 
 			// Assign a user role before saving the user
-			const role = await roleRepo.GetRoleByCodePromise(RoleCode.User.toString()); 
+			const role = await roleRepo.GetRoleByCodePromise(RoleCode.User.toString());
 			if (!role) {
 				return { user: null, result: false, errorCode: 500, errorMessage: "User role not found" };
 			}
@@ -69,8 +77,6 @@ export class UserService {
 				);
 			});
 		} catch (error) {
-			// Handle any exceptions that occur during the user creation and save process
-			console.error(`Error during createAndSaveUser: ${error}`);
 			return {
 				user: null,
 				result: false,
@@ -86,13 +92,14 @@ export class UserService {
 	): Promise<{ user: User | null; result: boolean; errorCode?: number; errorMessage?: string }> {
 		try {
 			const userRepo = await this.getUserRepository();
+			const userRoleRepo = await this.getUserRoleRepository();
 
 			// Retrieve the existing user from the database
 			if (!userData.Id) {
 				throw new Error("User ID is required for updating");
 			}
 
-			const existingUser = await new Promise<User | null>((resolve, reject) => {
+			const existingUser = await new Promise<User | null>(resolve => {
 				userRepo.GetUserById(userData.Id!, (result: boolean, user: User | null | undefined) => {
 					if (result && user) {
 						resolve(user);
@@ -114,17 +121,20 @@ export class UserService {
 			// Merge the updated fields into the existing user
 			Object.assign(existingUser, userData);
 
-			// Save the updated user object to the database
+			const user = new User();
+			Object.assign(user, existingUser);
+			user.Avatar = "[binary,...,..]";
+
 			return new Promise(resolve => {
 				userRepo.Save(
-					existingUser,
-					existingUser.Id,
+					user,
+					user.Id,
 					true, // Indicating an update operation
 					false,
 					(result: boolean, errorCode?: number, errorMessage?: string) => {
 						if (result) {
 							// If the user is successfully saved, resolve with the updated user object and result
-							resolve({ user: existingUser, result, errorCode: undefined, errorMessage: undefined });
+							resolve({ user: user, result, errorCode: undefined, errorMessage: undefined });
 						} else {
 							// If there was an error saving the user, resolve with error details
 							resolve({ user: null, result: false, errorCode, errorMessage });
@@ -133,8 +143,6 @@ export class UserService {
 				);
 			});
 		} catch (error) {
-			// Handle any exceptions that occur during the user update process
-			console.error(`Error during updateUser: ${error}`);
 			return {
 				user: null,
 				result: false,

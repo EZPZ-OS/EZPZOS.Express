@@ -1,8 +1,8 @@
 import { Router } from "express";
-// import { someUserApiFunction } from "../../controllers/UserController";
+import { UpdateUser } from "../../controllers/UserController";
 
 const router: Router = Router();
 
-// router.post("/someUserApiFunction", someUserApiFunction);
+router.put("/update", UpdateUser)
 
 export default router;
