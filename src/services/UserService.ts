@@ -92,7 +92,6 @@ export class UserService {
 	): Promise<{ user: User | null; result: boolean; errorCode?: number; errorMessage?: string }> {
 		try {
 			const userRepo = await this.getUserRepository();
-			const userRoleRepo = await this.getUserRoleRepository();
 
 			// Retrieve the existing user from the database
 			if (!userData.Id) {
