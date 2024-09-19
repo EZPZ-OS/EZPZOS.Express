@@ -95,7 +95,7 @@ export class UserService {
 
 			// Retrieve the existing user from the database
 			if (!userData.Id) {
-				throw new Error("User ID is required for updating");
+				return { user: null, result: false, errorCode: 404, errorMessage: "User ID is required for updating" };
 			}
 
 			const existingUser = await new Promise<User | null>(resolve => {

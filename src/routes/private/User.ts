@@ -3,6 +3,6 @@ import { UpdateUser } from "../../controllers/UserController";
 
 const router: Router = Router();
 
-router.put("/update", UpdateUser)
+router.put("/update/:id", UpdateUser)
 
 export default router;
