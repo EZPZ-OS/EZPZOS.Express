@@ -104,6 +104,7 @@ pipeline {
             script{
                 sh '''
                 rm -rf ../EZPZOS.Core
+                docker rmi $(docker images -q)
                 pwd
                 ls 
                 ls ../*
