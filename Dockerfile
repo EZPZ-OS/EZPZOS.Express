@@ -1,32 +1,19 @@
 # Choose ubuntu version
-FROM mcr.microsoft.com/mssql/server:2022-latest
 FROM node:22.6.0
 
 
 # Create app directory
-WORKDIR /usr/src/app
+WORKDIR /app
 
-COPY . /usr/src/app
+COPY EZPZos.Core /app/EZPzos.Core
+COPY EZPZOS.Express /app/EZPZOS.Express
 
-WORKDIR /usr/src/app
-ENV SA_PASSWORD EZPZOSAdmin!
-ENV ACCEPT_EULA Y
-ENV MSSQL_PID Express
-RUN npm i && npm run build
-RUN apt-get update && \
-    apt-get install -y curl apt-transport-https && \
-    curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add - && \
-    curl https://packages.microsoft.com/config/debian/$(lsb_release -rs)/prod.list | tee /etc/apt/sources.list.d/msprod.list && \
-    apt-get update && \
-    apt-get install -y mssql-tools unixodbc-dev && \
-    rm -rf /var/lib/apt/lists/*
+RUN ls /app
 
-# Expose port 1433 in case accessing from other container
-# Expose port externally from docker-compose.yml
-EXPOSE 1433
+# Install dependencies
 
+RUN cd /app/EZPZos.Core && npm install && npm run build && \
+    cd /app/EZPZOS.Express && npm instal1 && npm run build
 
-# Run Microsoft SQL Server and initialization script (at the same time).
-
-
-CMD npm start
+EXPOSE 8000
+CMD cd /app/EZPZOS.Express && npm start
