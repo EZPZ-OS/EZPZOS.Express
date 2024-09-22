@@ -6,7 +6,7 @@ pipeline {
         ECR_REPOSITORY_NAME = 'ezpzos-express'
         IMAGE_TAG = 'latest'
         CLUSTER_NAME = 'ezpzos-fargate-cluster'
-        SERVICE_NAME = 'ezpzos'
+        SERVICE_NAME = 'ezpzos-service'
         TASK_DEFINITION = 'ezpzos-ec2-fargate'
     }
    stages{
