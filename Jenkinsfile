@@ -29,8 +29,6 @@ pipeline {
                             sh '''
                             rm .env
                             aws s3 cp "s3://ezpzos-env-file/core-env" .env
-                            npm i
-                            npm run build
                             '''
                         }
                     }
