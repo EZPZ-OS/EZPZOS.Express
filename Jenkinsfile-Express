@@ -15,7 +15,7 @@ pipeline {
         IMAGE_TAG = 'latest'
     }
     tools {
-        nodejs 'NodeJS 22.6.0'
+        NodeJs 'NodeJS 22.6.0'
     }
 
     
@@ -23,7 +23,7 @@ pipeline {
     stages {
         stage('Checkout EZPZOS.Core') {
             steps {
-                git credentialsId: 'Github-ssh-key', branch: 'main', url: 'git@github.com:yeye-git/ezpzos.git'
+                git credentialsId: 'Github-ssh-key', branch: 'main', url: 'git@github.com:EZPZ-OS/EZPZOS.Express.git'
             }
         }
 
