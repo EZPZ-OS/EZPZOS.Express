@@ -141,6 +141,11 @@ You will need to delete the volume from the `Volumes` tab since the create scrip
 npm run start
 ```
 
+Testing JWT
+```
+eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJ0ZXN0VXNlciIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTcyNjkwMjkyNywiZXhwIjo0ODQ4OTY2OTI3fQ.iO-_zChVVoHwd1gHEZzg1FoCWhn0dntSHRjXwdTWo4Q
+```
+
 ### Debug
 
 To run debugger you will need extenstion `TypeScript Debugger`

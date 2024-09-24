@@ -1,4 +1,7 @@
-import { UserRepository, RoleRepository, UserRoleRepository, RoleCode, User, UserRole, IUserRole } from "ezpzos.core";
+import { RoleCode, RoleRepository, User, UserRepository, UserRole, UserRoleRepository } from "ezpzos.core";
+import prisma from "./PrismaService";
+import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
+import { UpdateUser, User as UserType } from "../types/User";
 
 export class UserService {
 	// Utility method to get user repository
@@ -148,6 +151,45 @@ export class UserService {
 				errorCode: 500,
 				errorMessage: "An unexpected error occurred during user update"
 			};
+		}
+	}
+
+	// TODO Remove this function after testing and confirming prisma adoption
+	static async updateUserTest(userId: string, userData: UpdateUser): Promise<UserType> {
+		try {
+			return await prisma.user.update({
+				where: {
+					Id: userId,
+				},
+				data: { ...userData },
+			});
+		} catch (error) {
+			if (error instanceof PrismaClientKnownRequestError) {
+				// Handle specific Prisma errors (e.g., database connection issues)
+				console.error("Prisma error:", error.message)
+				throw new Error("Error fetching users from database")
+			} else {
+				// Handle generic errors
+				console.error("Unexpected error:", error)
+				throw new Error("Something went wrong while fetching users")
+			}
+		}
+	}
+
+	// TODO Remove this function after testing and confirming prisma adoption
+	static async getUsers(): Promise<UserType[]> {
+		try {
+			return await prisma.user.findMany()
+		} catch (error) {
+			if (error instanceof PrismaClientKnownRequestError) {
+				// Handle specific Prisma errors (e.g., database connection issues)
+				console.error("Prisma error:", error.message)
+				throw new Error("Error fetching users from database")
+			} else {
+				// Handle generic errors
+				console.error("Unexpected error:", error)
+				throw new Error("Something went wrong while fetching users")
+			}
 		}
 	}
 }
