@@ -6,7 +6,7 @@ do
 done
 
 echo "Building docker-compose"
-docker-compose -f "./Mac/docker-compose.yml" -f "./Mac/docker-compose.${envname}.yml"  build
+docker-compose -f "./Mac/docker-compose.yml" -f "./Mac/docker-compose.${envname}.yml"  build --no-cache
 
 echo "Bring up ${envname}"
 docker-compose -f "./Mac/docker-compose.yml" -f "./Mac/docker-compose.${envname}.yml"  up -d

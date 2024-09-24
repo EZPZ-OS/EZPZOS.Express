@@ -1,0 +1,61 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlserver"
+  url      = env("DATABASE_URL")
+}
+
+model Role {
+  Id               String    @id @default(uuid()) @map("Id") @db.UniqueIdentifier
+  Code             Int       @map("Code")
+  Description      String?   @map("Description") @db.NVarChar(500)
+  IsDeleted        Boolean   @map("IsDeleted") @db.Bit
+  CreatedTimestamp DateTime  @map("CreatedTimestamp") @db.DateTime
+  CreatedUserId    String?   @map("CreatedUserId") @db.UniqueIdentifier
+  UpdatedTimestamp DateTime? @map("UpdatedTimestamp") @db.DateTime
+  UpdatedUserId    String?   @map("UpdatedUserId") @db.UniqueIdentifier
+
+  // Relation field for UserRole
+  UserRole UserRole[]
+}
+
+model User {
+  Id               String    @id @default(uuid()) @map("Id") @db.UniqueIdentifier
+  Username         String    @map("Username") @db.NVarChar(255)
+  Password         String    @map("Password") @db.NVarChar(200)
+  Salt             String    @map("Salt") @db.NVarChar(200)
+  Email            String    @map("Email") @db.NVarChar(255)
+  Mobile           String?   @map("Mobile") @db.NVarChar(50)
+  Avatar           Bytes?    @map("Avatar") @db.Image
+  IsDeleted        Boolean   @map("IsDeleted") @db.Bit
+  CreatedTimestamp DateTime  @map("CreatedTimestamp") @db.DateTime
+  CreatedUserId    String?   @map("CreatedUserId") @db.UniqueIdentifier
+  UpdatedTimestamp DateTime? @map("UpdatedTimestamp") @db.DateTime
+  UpdatedUserId    String?   @map("UpdatedUserId") @db.UniqueIdentifier
+
+  // Relation field for UserRole
+  UserRole UserRole[]
+}
+
+model UserRole {
+  Id               String    @id @default(uuid()) @map("Id") @db.UniqueIdentifier
+  UserId           String    @map("UserId") @db.UniqueIdentifier
+  RoleId           String    @map("RoleId") @db.UniqueIdentifier
+  IsDeleted        Boolean   @map("IsDeleted") @db.Bit
+  CreatedTimestamp DateTime  @map("CreatedTimestamp") @db.DateTime
+  CreatedUserId    String?   @map("CreatedUserId") @db.UniqueIdentifier
+  UpdatedTimestamp DateTime? @map("UpdatedTimestamp") @db.DateTime
+  UpdatedUserId    String?   @map("UpdatedUserId") @db.UniqueIdentifier
+
+  // Relationships with unique foreign key names
+  Role Role @relation(fields: [RoleId], references: [Id])
+  User User @relation(fields: [UserId], references: [Id])
+}
