@@ -23,6 +23,9 @@ RUN ls -l /app/EZPZOS.Core
 RUN cd /app/EZPZOS.Core && npm install --unsafe-perm && npm run build && \
     cd /app/EZPZOS.Express && npm install --unsafe-perm && npm run build
 
+
+RUN ls -l /app
+RUN ls -l /app/EZPZOS.Core
 # # copy static file into container
 # COPY EZPZOS.Express/dist/ /app/dist/
 
