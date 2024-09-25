@@ -179,7 +179,21 @@ export class UserService {
 	// TODO Remove this function after testing and confirming prisma adoption
 	static async getUsers(): Promise<UserType[]> {
 		try {
-			return await prisma.user.findMany()
+			return await prisma.user.findMany({
+				select: {
+					Id: true,
+					Username: true,
+					Password: true,
+					Salt: true,
+					Email: true,
+					Mobile: true,
+					IsDeleted: true,
+					CreatedTimestamp: true,
+					CreatedUserId: true,
+					UpdatedTimestamp: true,
+					UpdatedUserId: true,
+				},
+			})
 		} catch (error) {
 			if (error instanceof PrismaClientKnownRequestError) {
 				// Handle specific Prisma errors (e.g., database connection issues)
@@ -191,5 +205,29 @@ export class UserService {
 				throw new Error("Something went wrong while fetching users")
 			}
 		}
+	}
+
+	static async updateAvatar(userId: string, avatar: Express.Multer.File) {
+		// Update the user's avatar in the database as binary data
+		return prisma.user.update({
+			where: { Id: userId },
+			data: {
+				Avatar: avatar.buffer,
+			},
+		});
+	}
+
+	static async getUserAvatar(userId: string): Promise<Buffer | null> {
+		// Fetch the user's avatar from the database
+		const user = await prisma.user.findUnique({
+			where: { Id: userId },
+			select: { Avatar: true },
+		});
+
+		if (!user) {
+			throw new Error("User not found");
+		}
+
+		return user.Avatar;
 	}
 }
