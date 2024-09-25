@@ -11,12 +11,14 @@ COPY EZPZOS.Express /app/EZPZOS.Express
 
 
 RUN ls -l /app
+RUN ls -l /app/EZPZOS.Core
 
 # Install dependencies
 # RUN cd /app/EZPZOS.Core && npm install  && npm run build 
 # RUN cd /app/EZPZOS.Express && npm install  && npm run build
 # RUN cp -a /app/EZPZOS.Express/* /app/
 # RUN ls -l /app/node_modules
+
 
 RUN cd /app/EZPZOS.Core && npm install --unsafe-perm && npm run build && \
     cd /app/EZPZOS.Express && npm install --unsafe-perm && npm run build
