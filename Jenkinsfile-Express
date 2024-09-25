@@ -5,13 +5,13 @@ pipeline {
         githubPush() 
     }
     environment {
-        AWS_ACCOUNT_ID = '897244716306'
+        AWS_ACCOUNT_ID = '975049907995'
         AWS_REGION = 'ap-southeast-2'
         ECR_REPO_NAME = 'ezpzos-express'
         CLUSTER_NAME = 'ezpzos-fargate-cluster'
         SERVICE_NAME = 'ezpzos'
         TASK_FAMILY = 'ezpzos-ec2-fargate'
-        ECR_REPO = '897244716306.dkr.ecr.ap-southeast-2.amazonaws.com'
+        ECR_REPO = '975049907995.dkr.ecr.ap-southeast-2.amazonaws.com'
         IMAGE_TAG = 'latest'
     }
     tools {
@@ -23,7 +23,7 @@ pipeline {
     stages {
         stage('Checkout EZPZOS.Core') {
             steps {
-                git credentialsId: 'Github-ssh-key', branch: 'main', url: 'git@github.com:EZPZ-OS/EZPZOS.Express.git'
+                git credentialsId: 'Github-token', branch: 'main', url: 'git@github.com:EZPZ-OS/EZPZOS.Express.git'
             }
         }
 
@@ -79,7 +79,7 @@ pipeline {
                     ]]) {
                         sh '''
                              export PATH=$PATH:/tmp/aws-cli-bin
-                             aws ecr get-login-password --region ap-southeast-2 | docker login --username AWS --password-stdin 897244716306.dkr.ecr.ap-southeast-2.amazonaws.com
+                             aws ecr get-login-password --region ap-southeast-2 | docker login --username AWS --password-stdin 975049907995.dkr.ecr.ap-southeast-2.amazonaws.com
                         '''
                     }
                     echo 'ECR login success'
