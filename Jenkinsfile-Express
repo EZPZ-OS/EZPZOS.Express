@@ -23,7 +23,7 @@ pipeline {
     stages {
         stage('Checkout EZPZOS.Core') {
             steps {
-                git credentialsId: 'Github-token', branch: 'main', url: 'git@github.com:EZPZ-OS/EZPZOS.Express.git'
+                git credentialsId: 'Github-token', branch: 'DevOps-JoJo', url: 'git@github.com:EZPZ-OS/EZPZOS.Express.git'
             }
         }
 
