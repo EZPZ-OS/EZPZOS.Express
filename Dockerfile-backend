@@ -11,7 +11,7 @@ COPY EZPZOS.Express /app/EZPZOS.Express
 
 
 RUN ls -l /app
-RUN ls -l /app/EZPZOS.Core
+RUN ls -l EZPZOS.Core
 
 # Install dependencies
 RUN cd /app/EZPZOS.Core && npm install  && npm run build && \
