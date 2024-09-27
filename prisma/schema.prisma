@@ -95,7 +95,7 @@ model HotSale {
 model Cuisine {
   Id               String           @id @default(uuid()) @map("Id") @db.UniqueIdentifier
   Name             String           @map("Name") @db.NVarChar(255)
-  Description      String?          @map("Description") @db.NVarChar(1000)
+  Description      String          @map("Description") @db.NVarChar(1000)
   Price            Float            @map("Price")
   Category         String           @map("Category") @db.NVarChar(255)
   IsAvailable      Boolean          @map("IsAvailable") @db.Bit
@@ -104,7 +104,6 @@ model Cuisine {
   HotSales         CuisineHotSale[] @relation("CuisineToHotSales")
   CreatedTimestamp DateTime         @map("CreatedTimestamp") @db.DateTime
   UpdatedTimestamp DateTime?        @map("UpdatedTimestamp") @db.DateTime
-
   @@map("Cuisine")
 }
 
