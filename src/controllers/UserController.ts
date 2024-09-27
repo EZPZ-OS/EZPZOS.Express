@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import { LogHandler, LogLevel, User } from "ezpzos.core";
 import { UserService } from "../services/UserService";
 
-const logger = new LogHandler("userController.ts");
+const logger = new LogHandler("UserController.ts");
 
 interface UpdateUserRequest extends Request {
 	body: Partial<User>;
