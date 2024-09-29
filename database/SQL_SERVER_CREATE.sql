@@ -49,10 +49,6 @@ WHERE  TABLE_NAME = 'User'))
 
 Begin
 
-BEGIN TRY
-
-BEGIN TRAN;
-
 -- CreateTable
 CREATE TABLE [dbo].[Role] (
     [Id] UNIQUEIDENTIFIER NOT NULL,
@@ -174,38 +170,5 @@ CREATE TABLE [dbo].[Order] (
     CONSTRAINT [Order_pkey] PRIMARY KEY CLUSTERED ([Id])
 );
 
--- AddForeignKey
-ALTER TABLE [dbo].[UserRole] ADD CONSTRAINT [UserRole_RoleId_fkey] FOREIGN KEY ([RoleId]) REFERENCES [dbo].[Role]([Id]) ON DELETE NO ACTION ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE [dbo].[UserRole] ADD CONSTRAINT [UserRole_UserId_fkey] FOREIGN KEY ([UserId]) REFERENCES [dbo].[User]([Id]) ON DELETE NO ACTION ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE [dbo].[Image] ADD CONSTRAINT [Image_CuisineId_fkey] FOREIGN KEY ([CuisineId]) REFERENCES [dbo].[Cuisine]([Id]) ON DELETE NO ACTION ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE [dbo].[CuisineHotSale] ADD CONSTRAINT [CuisineHotSale_CuisineId_fkey] FOREIGN KEY ([CuisineId]) REFERENCES [dbo].[Cuisine]([Id]) ON DELETE NO ACTION ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE [dbo].[CuisineHotSale] ADD CONSTRAINT [CuisineHotSale_HotSaleId_fkey] FOREIGN KEY ([HotSaleId]) REFERENCES [dbo].[HotSale]([Id]) ON DELETE NO ACTION ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE [dbo].[OrderItem] ADD CONSTRAINT [OrderItem_OrderId_fkey] FOREIGN KEY ([OrderId]) REFERENCES [dbo].[Order]([Id]) ON DELETE NO ACTION ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE [dbo].[Order] ADD CONSTRAINT [Order_UserId_fkey] FOREIGN KEY ([UserId]) REFERENCES [dbo].[User]([Id]) ON DELETE NO ACTION ON UPDATE CASCADE;
-
-COMMIT TRAN;
-
-END TRY
-BEGIN CATCH
-
-IF @@TRANCOUNT > 0
-BEGIN
-    ROLLBACK TRAN;
-END;
-THROW
-
-END CATCH
 END;
 go
