@@ -22,8 +22,5 @@ ENV MSSQL_PID Express
 # Expose port externally from docker-compose.yml
 EXPOSE 1433
 
-
 # Run Microsoft SQL Server and initialization script (at the same time)
-
-
-CMD bash ./entrypoint.sh
+CMD bash ./run-initialisation.sh & /opt/mssql/bin/sqlservr
