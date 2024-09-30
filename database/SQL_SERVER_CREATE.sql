@@ -170,5 +170,11 @@ CREATE TABLE [dbo].[Order] (
     CONSTRAINT [Order_pkey] PRIMARY KEY CLUSTERED ([Id])
 );
 
+-- CreateIndex
+ALTER TABLE [dbo].[User] ADD CONSTRAINT [User_Email_key] UNIQUE NONCLUSTERED ([Email]);
+
+-- CreateIndex
+ALTER TABLE [dbo].[User] ADD CONSTRAINT [User_Mobile_key] UNIQUE NONCLUSTERED ([Mobile]);
+
 END;
 go
