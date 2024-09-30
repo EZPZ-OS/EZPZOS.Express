@@ -33,8 +33,8 @@ model User {
   Username         String    @map("Username") @db.NVarChar(500)
   Password         String    @map("Password") @db.NVarChar(500)
   Salt             String    @map("Salt") @db.NVarChar(500)
-  Email            String    @map("Email") @db.NVarChar(500)
-  Mobile           String    @map("Mobile") @db.NVarChar(500)
+  Email            String    @unique @map("Email") @db.NVarChar(500)
+  Mobile           String    @unique @map("Mobile") @db.NVarChar(500)
   Avatar           Bytes?    @map("Avatar") @db.Image
   IsDeleted        Boolean   @map("IsDeleted") @db.Bit
   CreatedTimestamp DateTime  @map("CreatedTimestamp") @db.DateTime

@@ -1,5 +1,4 @@
 import { Request, Response } from "express";
-import dotenv from "dotenv";
 import twilio from "twilio";
 import jwt from "jsonwebtoken";
 import {
@@ -15,8 +14,6 @@ import {
 } from "ezpzos.core";
 import { verifyOtpToken } from "../services/AuthService";
 import { UserService } from "../services/UserService";
-
-dotenv.config();
 
 const logger = new LogHandler("authController.ts");
 
