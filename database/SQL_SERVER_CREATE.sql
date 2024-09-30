@@ -195,6 +195,12 @@ ALTER TABLE [dbo].[OrderItem] ADD CONSTRAINT [OrderItem_OrderId_fkey] FOREIGN KE
 -- AddForeignKey
 ALTER TABLE [dbo].[Order] ADD CONSTRAINT [Order_UserId_fkey] FOREIGN KEY ([UserId]) REFERENCES [dbo].[User]([Id]) ON DELETE NO ACTION ON UPDATE CASCADE;
 
+-- CreateIndex
+ALTER TABLE [dbo].[User] ADD CONSTRAINT [User_Email_key] UNIQUE NONCLUSTERED ([Email]);
+
+-- CreateIndex
+ALTER TABLE [dbo].[User] ADD CONSTRAINT [User_Mobile_key] UNIQUE NONCLUSTERED ([Mobile]);
+
 COMMIT TRAN;
 
 END TRY
