@@ -1,0 +1,55 @@
+name: Build and Deploy
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      # Step 1: Checkout the Express repository (Main repo)
+      - name: Checkout Express repository
+        uses: actions/checkout@v4
+        with:
+          repository: EZPZ-OS/EZPZOS.Express
+          ref: main
+      # Step 2: Checkout the Core repository (Dependency)       
+      - name: Checkout Core repository
+        uses: actions/checkout@v4
+        with:
+          repository: EZPZ-OS/EZPZOS.Core
+          token: ${{ secrets.GH_TOKEN }}  # Use the GH_TOKEN to authenticate and checkout Core
+          path: EZPZOS.Core  # This creates a directory at the root of the workspace
+      # Step 3: Correctly move Core to be on the same level as Express
+      - name: verify the files structure
+        run: |
+          mv  EZPZOS.Core/ ../EZPZOS.Core
+          pwd 
+          ls
+          echo "outside of $(pwd)"
+          ls ../
+          
+          
+      # Step 4: Install dependencies and build Core
+      - name: Install and build Core
+        working-directory: ../EZPZOS.Core
+        run: |
+          npm install
+          npm run build
+    
+
+
+      # Step 5: Install dependencies and build Express (after Core is built)
+      - name: Install and build Express
+        # working-directory: ./EZPZOS.Express
+        run: |
+          npm install
+          npm run build
+
+
