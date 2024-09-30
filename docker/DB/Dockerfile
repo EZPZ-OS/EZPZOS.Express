@@ -1,5 +1,5 @@
 # Choose ubuntu version
-FROM mcr.microsoft.com/mssql/server:2022-latest
+FROM mcr.microsoft.com/mssql/server:2022-CU13-ubuntu-20.04
 
 # Create app directory
 WORKDIR /usr/src/app
@@ -22,8 +22,5 @@ ENV MSSQL_PID Express
 # Expose port externally from docker-compose.yml
 EXPOSE 1433
 
-
 # Run Microsoft SQL Server and initialization script (at the same time)
-
-
-CMD bash ./entrypoint.sh
+CMD bash ./run-initialisation.sh & /opt/mssql/bin/sqlservr

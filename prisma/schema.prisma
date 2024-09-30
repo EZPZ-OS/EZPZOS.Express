@@ -1,0 +1,157 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+// Need Prisma plugin for best formating outcome :)
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlserver"
+  url      = env("DATABASE_URL")
+}
+
+model Role {
+  Id               String    @id @default(uuid()) @map("Id") @db.UniqueIdentifier
+  Code             Int       @map("Code")
+  Description      String?   @map("Description") @db.NVarChar(500)
+  IsDeleted        Boolean   @map("IsDeleted") @db.Bit
+  CreatedTimestamp DateTime  @map("CreatedTimestamp") @db.DateTime
+  CreatedUserId    String?   @map("CreatedUserId") @db.UniqueIdentifier
+  UpdatedTimestamp DateTime? @map("UpdatedTimestamp") @db.DateTime
+  UpdatedUserId    String?   @map("UpdatedUserId") @db.UniqueIdentifier
+
+  // Relation field for UserRole
+  UserRole UserRole[]
+}
+
+model User {
+  Id               String    @id @default(uuid()) @map("Id") @db.UniqueIdentifier
+  Username         String    @map("Username") @db.NVarChar(500)
+  Password         String    @map("Password") @db.NVarChar(500)
+  Salt             String    @map("Salt") @db.NVarChar(500)
+  Email            String    @unique @map("Email") @db.NVarChar(500)
+  Mobile           String    @unique @map("Mobile") @db.NVarChar(500)
+  Avatar           Bytes?    @map("Avatar") @db.Image
+  IsDeleted        Boolean   @map("IsDeleted") @db.Bit
+  CreatedTimestamp DateTime  @map("CreatedTimestamp") @db.DateTime
+  CreatedUserId    String?   @map("CreatedUserId") @db.UniqueIdentifier
+  UpdatedTimestamp DateTime? @map("UpdatedTimestamp") @db.DateTime
+  UpdatedUserId    String?   @map("UpdatedUserId") @db.UniqueIdentifier
+
+  // Relation field for UserRole and Order
+  UserRole UserRole[]
+  Orders   Order[]
+}
+
+model UserRole {
+  Id               String    @id @default(uuid()) @map("Id") @db.UniqueIdentifier
+  UserId           String    @map("UserId") @db.UniqueIdentifier
+  RoleId           String    @map("RoleId") @db.UniqueIdentifier
+  IsDeleted        Boolean   @map("IsDeleted") @db.Bit
+  CreatedTimestamp DateTime  @map("CreatedTimestamp") @db.DateTime
+  CreatedUserId    String?   @map("CreatedUserId") @db.UniqueIdentifier
+  UpdatedTimestamp DateTime? @map("UpdatedTimestamp") @db.DateTime
+  UpdatedUserId    String?   @map("UpdatedUserId") @db.UniqueIdentifier
+
+  // Relationships with unique foreign key names
+  Role Role @relation(fields: [RoleId], references: [Id])
+  User User @relation(fields: [UserId], references: [Id])
+}
+
+model Image {
+  Id               String    @id @default(uuid()) @map("Id") @db.UniqueIdentifier
+  Name             String    @map("Name") @db.NVarChar(500)
+  Path             String    @map("Path")
+  Content          Bytes     @map("Content") // Maps to binary data
+  CuisineId        String    @map("CuisineId") @db.UniqueIdentifier
+  CreatedTimestamp DateTime  @map("CreatedTimestamp") @db.DateTime
+  UpdatedTimestamp DateTime? @map("UpdatedTimestamp") @db.DateTime
+
+  // Relationships
+  Cuisine Cuisine @relation(fields: [CuisineId], references: [Id], name: "CuisineImages")
+
+  @@map("Image")
+}
+
+// Seasonal Discounts
+model HotSale {
+  Id                String           @id @default(uuid()) @map("Id") @db.UniqueIdentifier
+  SaleTimestamp     DateTime         @map("SaleTimestamp") @db.DateTime
+  ExpiryTimestamp   DateTime         @map("ExpiryTimestamp") @db.DateTime
+  ReductionRequired Float            @map("ReductionRequired")
+  Reduction         Float            @map("Reduction")
+  Cuisines          CuisineHotSale[] @relation("CuisineToHotSales")
+  CreatedTimestamp  DateTime         @map("CreatedTimestamp") @db.DateTime
+  UpdatedTimestamp  DateTime?        @map("UpdatedTimestamp") @db.DateTime
+
+  @@map("HotSale")
+}
+
+// Single Dish Item 
+model Cuisine {
+  Id               String           @id @default(uuid()) @map("Id") @db.UniqueIdentifier
+  Name             String           @map("Name") @db.NVarChar(500)
+  Description      String           @map("Description") @db.NVarChar(500)
+  Price            Float            @map("Price")
+  Category         String           @map("Category") @db.NVarChar(500)
+  IsAvailable      Boolean          @map("IsAvailable") @db.Bit
+  EstimatedTime    Int              @map("EstimatedTime")
+  Images           Image[]          @relation("CuisineImages")
+  HotSales         CuisineHotSale[] @relation("CuisineToHotSales")
+  CreatedTimestamp DateTime         @map("CreatedTimestamp") @db.DateTime
+  UpdatedTimestamp DateTime?        @map("UpdatedTimestamp") @db.DateTime
+
+  @@map("Cuisine")
+}
+
+model CuisineHotSale {
+  Id               String    @id @default(uuid()) @map("Id") @db.UniqueIdentifier
+  Category         String    @map("Category") @db.NVarChar(500)
+  Discount         Float     @map("Discount")
+  CuisineId        String    @map("CuisineId") @db.UniqueIdentifier
+  HotSaleId        String    @map("HotSaleId") @db.UniqueIdentifier
+  CreatedTimestamp DateTime  @map("CreatedTimestamp") @db.DateTime
+  UpdatedTimestamp DateTime? @map("UpdatedTimestamp") @db.DateTime
+
+  // Relationships
+  Cuisine Cuisine @relation(fields: [CuisineId], references: [Id], name: "CuisineToHotSales")
+  HotSale HotSale @relation(fields: [HotSaleId], references: [Id], name: "CuisineToHotSales")
+
+  @@map("CuisineHotSale")
+}
+
+// OrderItems (A Cuisine that has been placed in an order by a customer)
+model OrderItem {
+  Id               String    @id @default(uuid()) @map("Id") @db.UniqueIdentifier
+  Quantity         Int       @map("Quantity")
+  OrderItemType    String    @map("OrderItemType")
+  CuisineId        String    @map("CuisineId") @db.UniqueIdentifier
+  OrderId          String    @map("OrderId") @db.UniqueIdentifier
+  Order            Order     @relation(fields: [OrderId], references: [Id], name: "OrderToItems")
+  Comments         String?   @map("Comments") @db.NVarChar(500)
+  CreatedTimestamp DateTime  @map("CreatedTimestamp") @db.DateTime
+  UpdatedTimestamp DateTime? @map("UpdatedTimestamp") @db.DateTime
+
+  @@map("OrderItem")
+}
+
+model Order {
+  Id                 String      @id @default(uuid()) @map("Id") @db.UniqueIdentifier
+  UserId             String      @map("UserId") @db.UniqueIdentifier
+  User               User        @relation(fields: [UserId], references: [Id]) // Relation to User model
+  TableNumber        String      @map("TableNumber") @db.NVarChar(500)
+  PaymentOption      String      @map("PaymentOption")
+  CompletedTimestamp DateTime?   @map("CompletedTimestamp") @db.DateTime
+  PickupTimestamp    DateTime?   @map("PickupTimestamp") @db.DateTime
+  IsPaid             Boolean     @map("IsPaid") @db.Bit
+  BranchId           String      @map("BranchId") @db.UniqueIdentifier
+  OrderItems         OrderItem[] @relation("OrderToItems") // One-to-many relation to OrderItem
+  CreatedTimestamp   DateTime    @map("CreatedTimestamp") @db.DateTime
+  UpdatedTimestamp   DateTime?   @map("UpdatedTimestamp") @db.DateTime
+
+  @@map("Order")
+}

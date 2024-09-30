@@ -1,23 +1,19 @@
 import { Request, Response } from "express";
-import dotenv from "dotenv";
+import twilio from "twilio";
 import jwt from "jsonwebtoken";
 import {
 	DefaultJWTSecretKey,
 	LogHandler,
 	LogLevel,
-	UserRepository,
 	User,
-	RoleRepository,
-	RoleCode,
-	UserRole,
-	Role,
 	JWTLoginTokenExpiringPeriod,
 	PhoneNumberNormalizer,
-	OTPType
+	OTPType,
+	DefaultOTPVerificationValues,
+	OTPTokenExpiringPeriod,
 } from "ezpzos.core";
 import { verifyOtpToken } from "../services/AuthService";
-
-dotenv.config();
+import { UserService } from "../services/UserService";
 
 const logger = new LogHandler("authController.ts");
 
@@ -26,7 +22,7 @@ interface SignupRequest extends Request {
 		mobile: string;
 		username: string;
 		email: string;
-		otpTarget: OTPType
+		otpTarget: OTPType;
 	};
 }
 
@@ -34,17 +30,92 @@ interface LoginRequest extends Request {
 	body: {
 		mobile: string;
 		otpToken: string;
-		otpTarget: OTPType
+		otpTarget: OTPType;
 	};
 }
 
+interface SendOtpRequest extends Request {
+	body: {
+		mobile: string;
+		otpType: string;
+	};
+}
+
+interface VerifyOtpRequest extends Request {
+	body: {
+		mobile: string;
+		otp: string;
+		otpType: OTPType;
+	};
+}
+
+const accountSid = process.env.ACCOUNT_SID ?? DefaultOTPVerificationValues.AccountSidDefaultValue;
+const authToken = process.env.AUTH_TOKEN ?? DefaultOTPVerificationValues.AuthTokenDefaultValue;
+const serviceSid = process.env.SERVICE_SID ?? DefaultOTPVerificationValues.ServiceSidDefaultValue;
+const client = twilio(accountSid, authToken);
+
 const SECRET_KEY = DefaultJWTSecretKey;
+
+//*Sending OTP function
+export const sendOtp = async (req: SendOtpRequest, res: Response) => {
+	const { mobile } = req.body;
+
+	try {
+		// Normalize the phone number
+		const normalizer = new PhoneNumberNormalizer(mobile);
+		const normalizedMobile = normalizer.normalize();
+
+		// Send OTP using Twilio Verify service
+		await client.verify.v2.services(serviceSid).verifications.create({ to: normalizedMobile, channel: "sms" });
+		res.status(200).send({ message: "OTP sent successfully" });
+	} catch (error) {
+		logger.Log("send-otp", `Error sending OTP: ${error}`, LogLevel.ERROR);
+		res.status(500).send("Error sending OTP");
+	}
+};
+
+//*Verifying OTP function
+export const verifyOtp = async (req: VerifyOtpRequest, res: Response) => {
+	const { mobile, otp, otpType } = req.body;
+
+	try {
+		// Normalize the phone number
+		const normalizer = new PhoneNumberNormalizer(mobile);
+		const normalizedMobile = normalizer.normalize();
+
+		// Verify OTP using Twilio Verify service
+		const verification_check = await client.verify.v2
+			.services(serviceSid)
+			.verificationChecks.create({ to: normalizedMobile, code: otp });
+
+		if (verification_check.status === "approved") {
+			// Create a JWT containing the otpType and mobile number
+			const otpToken: string = jwt.sign({ mobile: normalizedMobile, otpType: otpType }, SECRET_KEY, {
+				expiresIn: OTPTokenExpiringPeriod // Set expiration in seconds
+			});
+
+			// Calculate expiration time (in seconds since Unix epoch)
+			const exp = Math.floor(Date.now() / 1000) + OTPTokenExpiringPeriod;
+
+            // Create a navigation attribute depends on the otpType for frontend to react accordingly
+			const otpTarget = otpType
+
+			// Send the token and expiration time back to the client
+			res.status(200).send({ message: "OTP verified successfully", otpToken, exp, otpTarget });
+		} else {
+			res.status(400).send("Invalid or expired OTP");
+		}
+	} catch (error) {
+		logger.Log("verify-otp", `Error verifying OTP: ${error}`, LogLevel.ERROR);
+		res.status(500).send("Error verifying OTP");
+	}
+};
 
 //*Signup function
 export const signup = async (req: SignupRequest, res: Response) => {
 	let { mobile, username, email, otpTarget } = req.body;
-	
-	// Get the token from query parameters 
+
+	// Get the token from query parameters
 	const otpToken = req.query.token as string;
 
 	// Verify the token and otpType
@@ -60,58 +131,24 @@ export const signup = async (req: SignupRequest, res: Response) => {
 		const normalizer = new PhoneNumberNormalizer(mobile);
 		const normalizedMobile = normalizer.normalize();
 
-		//create a new user in database
-		const userRepositoryType = (await UserRepository())?.UserRepository;
-		if (!userRepositoryType) {
-			logger.Log("signup", "UserRepositoryType is not defined", LogLevel.INFO);
-			return res.status(500).send("An unexpected error occurred during sign-up. Please try again later.");
-		}
-		const userRepo = new userRepositoryType();
-
-		const user = new User();
-		user.Username = mobile;
-		user.Password = "";
-		user.Email = email;
-		user.Mobile = normalizedMobile; // Use the normalized phone number to ensure consistency in format
-		user.Salt = "";
-		user.IsDeleted = false;
-		user.Avatar = "[binary,...,..]";
-
-		//create a new role in database
-		const roleRepositoryType = (await RoleRepository())?.RoleRepository;
-		if (!roleRepositoryType) {
-			logger.Log("signup", "RoleRepositoryType is not defined", LogLevel.INFO);
-			return res.status(500).send("An unexpected error occurred during sign-up. Please try again later.");
-		}
-
-		//assigning userRole as user(0)
-		let role = await new roleRepositoryType().GetRoleByCodePromise(RoleCode.User.toString());
-
-		let userRole = new UserRole();
-		userRole.Role = role ?? new Role();
-		userRole.UserId = user.Id;
-		userRole.RoleId = userRole.Role.Id;
-		userRole.IsDeleted = false;
-
-		//link user's UserRole as the newly created userRole
-		user.UserRoles = [userRole];
-
-		//save user information into database
-		userRepo.Save(user, user.Id, false, false, (result: boolean, errorCode?: number, errorMessage?: string) => {
-			if (result) {
-				const token = jwt.sign({ ...user }, SECRET_KEY, {
-					expiresIn: JWTLoginTokenExpiringPeriod
-				});
-				logger.Log("signup", "User created successfully", LogLevel.INFO);
-				res.status(201).send({ auth: true, token, user, message: "User created successfully" });
-			} else {
-				// Handle specific errors based on errorCode and errorMessage
-				if (errorCode && errorMessage) {
-					logger.Log("signup", errorMessage, LogLevel.WARN);
-					return res.status(errorCode).send({ auth: false, message: errorMessage });
-				}
-			}
+		// Use UserService to create and save the user
+		const { user, result, errorCode, errorMessage } = await UserService.createUser({
+			Username: mobile,
+			Password: "",
+			Email: email,
+			Mobile: normalizedMobile
 		});
+
+		if (!result || !user) {
+			logger.Log("signup", `Error: ${errorMessage}`, LogLevel.ERROR);
+			return res.status(errorCode || 500).send({ message: errorMessage || "Error creating user" });
+		}
+
+		// Generate JWT token
+		const token = jwt.sign({ ...user }, SECRET_KEY, { expiresIn: JWTLoginTokenExpiringPeriod });
+
+		logger.Log("signup", "User created successfully", LogLevel.INFO);
+		return res.status(201).send({ auth: true, token, user, message: "User created successfully" });
 	} catch (err) {
 		logger.Log("signup", `Error during sign-up: ${err}`, LogLevel.ERROR);
 		return res.status(500).send("An unexpected error occurred during sign-up. Please try again later.");
@@ -130,28 +167,26 @@ export const mobileLogin = async (req: LoginRequest, res: Response) => {
 		const normalizer = new PhoneNumberNormalizer(mobile);
 		const normalizedMobile = normalizer.normalize();
 
-		const userRepositoryType = (await UserRepository())?.UserRepository;
-		if (!userRepositoryType) {
-			logger.Log("signup", "UserRepositoryType is not defined", LogLevel.INFO);
-			return res.status(500).send("An unexpected error occurred during sign-up. Please try again later.");
-		}
-		const repo = new userRepositoryType();
+		const repo = await UserService.getUserRepository();
 
 		// Check if mobile exists in the database
-		repo.GetUserByMobile(normalizedMobile, (result: boolean, user: User | null | undefined, errorCode?: number, errorMessage?: string) => {
-			if (!result || !user) {
-				const status = errorCode || 404;
-				const message = errorMessage || "User not found";
-				logger.Log("login", "User not found", LogLevel.WARN);
-				return res.status(status).send({ error: message });
+		repo.GetUserByMobile(
+			normalizedMobile,
+			(result: boolean, user: User | null | undefined, errorCode?: number, errorMessage?: string) => {
+				if (!result || !user) {
+					const status = errorCode || 404;
+					const message = errorMessage || "User not found";
+					logger.Log("login", "User not found", LogLevel.WARN);
+					return res.status(status).send({ error: message });
+				}
+				// Generate jwt token and pass user back to frontend
+				const token = jwt.sign({ ...user }, SECRET_KEY, {
+					expiresIn: JWTLoginTokenExpiringPeriod
+				});
+				logger.Log("login", "OTP verified successfully", LogLevel.INFO);
+				return res.status(200).send({ auth: true, token, user, message: "User login successfully" });
 			}
-			// Generate jwt token and pass user back to frontend
-			const token = jwt.sign({ ...user }, SECRET_KEY, {
-				expiresIn: JWTLoginTokenExpiringPeriod
-			});
-			logger.Log("login", "OTP verified successfully", LogLevel.INFO);
-			return res.status(200).send({ auth: true, token, user, message: "User login successfully" });
-		});
+		);
 	} catch (err) {
 		logger.Log("login", `Error: ${err}`, LogLevel.ERROR);
 		return res.status(500).send("Error during login");

@@ -1,53 +1,6 @@
-SET ANSI_NULLS ON
-go
-SET QUOTED_IDENTIFIER ON
-go
+BEGIN TRY
 
-SET ANSI_PADDING ON
-go
-
-SET ANSI_WARNINGS ON
-go
-
-ALTER LOGIN sa WITH PASSWORD='EZPZOSAdmin!', 
-CHECK_POLICY=OFF
-GO
-
-ALTER LOGIN sa ENABLE
-GO
-
-EXEC sys.sp_configure N'remote access', N'1'
-GO
-
-RECONFIGURE WITH OVERRIDE
-GO
-
-
-IF (NOT EXISTS (SELECT [name]
-FROM [master].[sys].[databases] 
-WHERE [name]= N'EZPZOS'))
-Begin
-
-Create Database [EZPZOS]
-ALTER DATABASE [EZPZOS] SET RECOVERY SIMPLE
-
-END;
-GO
-
-IF (EXISTS (SELECT [name]
-FROM [master].[sys].[databases] 
-WHERE [name]= N'EZPZOS'))
-Begin
-use [EZPZOS];
-End;
-
-Go
-
-IF(NOT EXISTS (SELECT * 
-FROM INFORMATION_SCHEMA.TABLES 
-WHERE  TABLE_NAME = 'User'))
-
-Begin
+BEGIN TRAN;
 
 -- CreateTable
 CREATE TABLE [dbo].[Role] (
@@ -170,11 +123,15 @@ CREATE TABLE [dbo].[Order] (
     CONSTRAINT [Order_pkey] PRIMARY KEY CLUSTERED ([Id])
 );
 
--- CreateIndex
-ALTER TABLE [dbo].[User] ADD CONSTRAINT [User_Email_key] UNIQUE NONCLUSTERED ([Email]);
+COMMIT TRAN;
 
--- CreateIndex
-ALTER TABLE [dbo].[User] ADD CONSTRAINT [User_Mobile_key] UNIQUE NONCLUSTERED ([Mobile]);
+END TRY
+BEGIN CATCH
 
+IF @@TRANCOUNT > 0
+BEGIN
+    ROLLBACK TRAN;
 END;
-go
+THROW
+
+END CATCH
