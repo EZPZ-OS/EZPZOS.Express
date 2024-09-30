@@ -6,7 +6,7 @@ BEGIN TRAN;
 CREATE TABLE [dbo].[Role] (
     [Id] UNIQUEIDENTIFIER NOT NULL,
     [Code] INT NOT NULL,
-    [Description] NVARCHAR,
+    [Description] NVARCHAR(500),
     [IsDeleted] BIT NOT NULL,
     [CreatedTimestamp] DATETIME NOT NULL,
     [CreatedUserId] UNIQUEIDENTIFIER,
@@ -18,11 +18,11 @@ CREATE TABLE [dbo].[Role] (
 -- CreateTable
 CREATE TABLE [dbo].[User] (
     [Id] UNIQUEIDENTIFIER NOT NULL,
-    [Username] NVARCHAR NOT NULL,
-    [Password] NVARCHAR NOT NULL,
-    [Salt] NVARCHAR NOT NULL,
-    [Email] NVARCHAR NOT NULL,
-    [Mobile] NVARCHAR NOT NULL,
+    [Username] NVARCHAR(500) NOT NULL,
+    [Password] NVARCHAR(500) NOT NULL,
+    [Salt] NVARCHAR(500) NOT NULL,
+    [Email] NVARCHAR(500) NOT NULL,
+    [Mobile] NVARCHAR(500) NOT NULL,
     [Avatar] IMAGE,
     [IsDeleted] BIT NOT NULL,
     [CreatedTimestamp] DATETIME NOT NULL,
@@ -48,7 +48,7 @@ CREATE TABLE [dbo].[UserRole] (
 -- CreateTable
 CREATE TABLE [dbo].[Image] (
     [Id] UNIQUEIDENTIFIER NOT NULL,
-    [Name] NVARCHAR NOT NULL,
+    [Name] NVARCHAR(500) NOT NULL,
     [Path] NVARCHAR(1000) NOT NULL,
     [Content] VARBINARY(max) NOT NULL,
     [CuisineId] UNIQUEIDENTIFIER NOT NULL,
@@ -72,10 +72,10 @@ CREATE TABLE [dbo].[HotSale] (
 -- CreateTable
 CREATE TABLE [dbo].[Cuisine] (
     [Id] UNIQUEIDENTIFIER NOT NULL,
-    [Name] NVARCHAR(255) NOT NULL,
-    [Description] NVARCHAR(1000),
+    [Name] NVARCHAR(500) NOT NULL,
+    [Description] NVARCHAR(500) NOT NULL,
     [Price] FLOAT(53) NOT NULL,
-    [Category] NVARCHAR(255) NOT NULL,
+    [Category] NVARCHAR(500) NOT NULL,
     [IsAvailable] BIT NOT NULL,
     [EstimatedTime] INT NOT NULL,
     [CreatedTimestamp] DATETIME NOT NULL,
@@ -86,7 +86,7 @@ CREATE TABLE [dbo].[Cuisine] (
 -- CreateTable
 CREATE TABLE [dbo].[CuisineHotSale] (
     [Id] UNIQUEIDENTIFIER NOT NULL,
-    [Category] NVARCHAR(255) NOT NULL,
+    [Category] NVARCHAR(500) NOT NULL,
     [Discount] FLOAT(53) NOT NULL,
     [CuisineId] UNIQUEIDENTIFIER NOT NULL,
     [HotSaleId] UNIQUEIDENTIFIER NOT NULL,
@@ -102,7 +102,7 @@ CREATE TABLE [dbo].[OrderItem] (
     [OrderItemType] NVARCHAR(1000) NOT NULL,
     [CuisineId] UNIQUEIDENTIFIER NOT NULL,
     [OrderId] UNIQUEIDENTIFIER NOT NULL,
-    [Comments] NVARCHAR(1000),
+    [Comments] NVARCHAR(500),
     [CreatedTimestamp] DATETIME NOT NULL,
     [UpdatedTimestamp] DATETIME,
     CONSTRAINT [OrderItem_pkey] PRIMARY KEY CLUSTERED ([Id])
@@ -112,7 +112,7 @@ CREATE TABLE [dbo].[OrderItem] (
 CREATE TABLE [dbo].[Order] (
     [Id] UNIQUEIDENTIFIER NOT NULL,
     [UserId] UNIQUEIDENTIFIER NOT NULL,
-    [TableNumber] NVARCHAR(255) NOT NULL,
+    [TableNumber] NVARCHAR(500) NOT NULL,
     [PaymentOption] NVARCHAR(1000) NOT NULL,
     [CompletedTimestamp] DATETIME,
     [PickupTimestamp] DATETIME,
@@ -122,27 +122,6 @@ CREATE TABLE [dbo].[Order] (
     [UpdatedTimestamp] DATETIME,
     CONSTRAINT [Order_pkey] PRIMARY KEY CLUSTERED ([Id])
 );
-
--- AddForeignKey
-ALTER TABLE [dbo].[UserRole] ADD CONSTRAINT [UserRole_RoleId_fkey] FOREIGN KEY ([RoleId]) REFERENCES [dbo].[Role]([Id]) ON DELETE NO ACTION ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE [dbo].[UserRole] ADD CONSTRAINT [UserRole_UserId_fkey] FOREIGN KEY ([UserId]) REFERENCES [dbo].[User]([Id]) ON DELETE NO ACTION ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE [dbo].[Image] ADD CONSTRAINT [Image_CuisineId_fkey] FOREIGN KEY ([CuisineId]) REFERENCES [dbo].[Cuisine]([Id]) ON DELETE NO ACTION ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE [dbo].[CuisineHotSale] ADD CONSTRAINT [CuisineHotSale_CuisineId_fkey] FOREIGN KEY ([CuisineId]) REFERENCES [dbo].[Cuisine]([Id]) ON DELETE NO ACTION ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE [dbo].[CuisineHotSale] ADD CONSTRAINT [CuisineHotSale_HotSaleId_fkey] FOREIGN KEY ([HotSaleId]) REFERENCES [dbo].[HotSale]([Id]) ON DELETE NO ACTION ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE [dbo].[OrderItem] ADD CONSTRAINT [OrderItem_OrderId_fkey] FOREIGN KEY ([OrderId]) REFERENCES [dbo].[Order]([Id]) ON DELETE NO ACTION ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE [dbo].[Order] ADD CONSTRAINT [Order_UserId_fkey] FOREIGN KEY ([UserId]) REFERENCES [dbo].[User]([Id]) ON DELETE NO ACTION ON UPDATE CASCADE;
 
 COMMIT TRAN;
 
