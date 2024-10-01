@@ -15,8 +15,6 @@ RUN ls -l EZPZOS.Core
 
 # Install dependencies
 
-RUN aws s3 cp "s3://ezpzos-env-file/core-env" .core-env
-RUN aws s3 cp "s3://ezpzos-env-file/express-env" .express-env
 RUN cd /app/EZPZOS.Core && npm install  && npm run build && \
     cd /app/EZPZOS.Express && npm install && npm run build
 
