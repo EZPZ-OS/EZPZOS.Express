@@ -44,9 +44,6 @@ export const UpdateAvatar = async (req: Request, res: Response) => {
 	const userId = req.params.id;
 	const avatar = req.file;
 
-	console.log('req.file:', req.file);   // Log to see if the file is being received
-	console.log('req.body:', req.body); 
-
 	if (!userId) {
 		logger.Log("UpdateAvatar", "User ID is missing", LogLevel.WARN);
 		return res.status(400).send({ message: "User ID is required" });

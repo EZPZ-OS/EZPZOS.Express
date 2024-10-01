@@ -10,7 +10,6 @@ export const uploadImageMiddleware = (req: Request, res: Response, next: NextFun
   const upload = multer({
     storage: multer.memoryStorage(),
     fileFilter: (req, file, cb) => {
-        console.log('Received file MIME type:', file?.mimetype); // Log the MIME type of the received file
       if (!allowedMimeTypes.includes(file.mimetype)) {
         logger.Log('UploadImage', 'Only PNG and JPEG files are allowed', LogLevel.WARN);
         return cb(null, false); // Reject the file
