@@ -1,10 +1,12 @@
 {
-    "taskDefinitionArn": "arn:aws:ecs:ap-southeast-2:975049907995:task-definition/ezpzos-ec2-fargate:85",
+    "family": "ezpzos-ec2-fargate",
+    "networkMode": "awsvpc",
+    "taskRoleArn": "arn:aws:iam::975049907995:role/ecsTaskExecutionRole",
+    "executionRoleArn": "arn:aws:iam::975049907995:role/ecsTaskExecutionRole",
     "containerDefinitions": [
         {
             "name": "ezpzos-express",
             "image": "975049907995.dkr.ecr.ap-southeast-2.amazonaws.com/ezpzos-express:latest",
-            "cpu": 0,
             "portMappings": [
                 {
                     "containerPort": 8000,
@@ -13,18 +15,6 @@
                 }
             ],
             "essential": true,
-            "environment": [],
-            "mountPoints": [],
-            "volumesFrom": [],
-            "logConfiguration": {
-                "logDriver": "awslogs",
-                "options": {
-                    "awslogs-group": "/ecs/ezpzos-express",
-                    "awslogs-create-group": "true",
-                    "awslogs-region": "ap-southeast-2",
-                    "awslogs-stream-prefix": "ecs"
-                }
-            },
             "healthCheck": {
                 "command": [
                     "CMD-SHELL",
@@ -35,59 +25,20 @@
                 "retries": 3,
                 "startPeriod": 60
             },
-            "systemControls": []
+            "logConfiguration": {
+                "logDriver": "awslogs",
+                "options": {
+                    "awslogs-group": "/ecs/ezpzos-express",
+                    "awslogs-region": "ap-southeast-2",
+                    "awslogs-stream-prefix": "ecs",
+                    "awslogs-create-group": "true"
+                }
+            }
         }
-    ],
-    "family": "ezpzos-ec2-fargate",
-    "taskRoleArn": "arn:aws:iam::975049907995:role/ecsTaskExecutionRole",
-    "executionRoleArn": "arn:aws:iam::975049907995:role/ecsTaskExecutionRole",
-    "networkMode": "awsvpc",
-    "revision": 85,
-    "volumes": [],
-    "status": "ACTIVE",
-    "requiresAttributes": [
-        {
-            "name": "com.amazonaws.ecs.capability.logging-driver.awslogs"
-        },
-        {
-            "name": "ecs.capability.execution-role-awslogs"
-        },
-        {
-            "name": "com.amazonaws.ecs.capability.ecr-auth"
-        },
-        {
-            "name": "com.amazonaws.ecs.capability.docker-remote-api.1.19"
-        },
-        {
-            "name": "com.amazonaws.ecs.capability.task-iam-role"
-        },
-        {
-            "name": "ecs.capability.container-health-check"
-        },
-        {
-            "name": "ecs.capability.execution-role-ecr-pull"
-        },
-        {
-            "name": "com.amazonaws.ecs.capability.docker-remote-api.1.18"
-        },
-        {
-            "name": "ecs.capability.task-eni"
-        },
-        {
-            "name": "com.amazonaws.ecs.capability.docker-remote-api.1.29"
-        }
-    ],
-    "placementConstraints": [],
-    "compatibilities": [
-        "EC2",
-        "FARGATE"
     ],
     "requiresCompatibilities": [
         "FARGATE"
     ],
     "cpu": "1024",
-    "memory": "2048",
-    "registeredAt": "2024-10-02T15:31:03.814Z",
-    "registeredBy": "arn:aws:iam::975049907995:user/Jocelyn",
-    "tags": []
+    "memory": "2048"
 }
