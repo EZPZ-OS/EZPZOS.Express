@@ -6,7 +6,7 @@
     "containerDefinitions": [
         {
             "name": "ezpzos-express",
-            "image": "975049907995.dkr.ecr.ap-southeast-2.amazonaws.com/ezpzos-express:2.0",
+            "image": "975049907995.dkr.ecr.ap-southeast-2.amazonaws.com/ezpzos-express:latest",
             "portMappings": [
                 {
                     "containerPort": 8000,
