@@ -25,11 +25,11 @@ export const UpdateUser = async (req: UpdateUserRequest, res: Response) => {
 
 	try {
 		// Use the UserService to update the user
-		const { user, result, errorCode, errorMessage } = await UserService.updateUser(userUpdates);
+		const { user, result } = await UserService.updateUser(userId, userUpdates);
 
 		if (!result) {
-			logger.Log("UpdateUser", errorMessage || "Error updating user", LogLevel.WARN);
-			return res.status(errorCode || 500).send({ result: false, message: errorMessage || "Error updating user" });
+			logger.Log("UpdateUser", "Error updating user", LogLevel.WARN);
+			return res.status(500).send({ result: false, message: "Error updating user" });
 		}
 
 		logger.Log("UpdateUser", "User successfully updated", LogLevel.INFO);

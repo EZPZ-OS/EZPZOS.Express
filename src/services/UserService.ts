@@ -42,7 +42,7 @@ export class UserService {
 			Object.assign(user, userData);
 			user.Salt = "";
 			user.IsDeleted = false;
-			user.Avatar = "[binary,...,..]";
+			user.Avatar = "";
 
 			// Assign a user role before saving the user
 			const role = await roleRepo.GetRoleByCodePromise(RoleCode.User.toString());
@@ -111,95 +111,22 @@ export class UserService {
 		return user;
 	}
 
-	//update existed user in the database
-	static async updateUser(
-		userData: Partial<User>
-	): Promise<{ user: User | null; result: boolean; errorCode?: number; errorMessage?: string }> {
+	static async updateUser(userId: string, userData: Partial<User>) {
 		try {
-			const userRepo = await this.getUserRepository();
-
-			// Retrieve the existing user from the database
-			if (!userData.Id) {
-				return { user: null, result: false, errorCode: 404, errorMessage: "User ID is required for updating" };
-			}
-
-			const existingUser = await new Promise<User | null>(resolve => {
-				userRepo.GetUserById(userData.Id!, (result: boolean, user: User | null | undefined) => {
-					if (result && user) {
-						resolve(user);
-					} else {
-						resolve(null);
-					}
-				});
-			});
-
-			if (!existingUser) {
-				return {
-					user: null,
-					result: false,
-					errorCode: 404,
-					errorMessage: "User not found"
-				};
-			}
-
-			// Merge the updated fields into the existing user
-			Object.assign(existingUser, userData);
-
-			let user = new User();
-			Object.assign(user, existingUser);
-
-			// Function to detect image MIME type
-			function detectMimeType(buffer: Buffer): string {
-				// JPEG magic numbers: FF D8 FF
-				if (buffer[0] === 0xff && buffer[1] === 0xd8 && buffer[2] === 0xff) {
-					return "image/jpeg";
-				}
-				// PNG magic numbers: 89 50 4E 47 0D 0A 1A 0A
-				if (buffer[0] === 0x89 && buffer[1] === 0x50 && buffer[2] === 0x4e && buffer[3] === 0x47) {
-					return "image/png";
-				}
-				// Add more checks for other image types if needed
-				return "";
-			}
-			// Check if avatar is a Buffer and convert to base64 string if necessary
-			if (Buffer.isBuffer(existingUser.Avatar)) {
-				const mimeType = detectMimeType(existingUser.Avatar);
-				const base64Avatar = existingUser.Avatar.toString("base64");
-
-				// If the mime type is detected, prepend the correct base64 prefix
-				if (mimeType) {
-					user.Avatar = `data:${mimeType};base64,${base64Avatar}`;
-				} else {
-					// Handle the case where the MIME type is unknown or unsupported
-					user.Avatar = base64Avatar; // This may not display correctly if the MIME type is not handled
-				}
-			}
-			return new Promise(resolve => {
-				userRepo.Save(
-					user,
-					user.Id,
-					true, // Indicating an update operation
-					false,
-					(result: boolean, errorCode?: number, errorMessage?: string) => {
-						if (result) {
-							// If the user is successfully saved, resolve with the updated user object and result
-							resolve({ user: user, result, errorCode: undefined, errorMessage: undefined });
-						} else {
-							// If there was an error saving the user, resolve with error details
-							resolve({ user: null, result: false, errorCode, errorMessage });
-						}
-					}
-				);
-			});
+		  const updatedUser = await prisma.user.update({
+			where: { Id: userId },
+			data: {
+			  Username: userData.Username,
+			  Email: userData.Email,
+			  Mobile: userData.Mobile,
+			},
+		  });
+		  return { user: updatedUser, result: true };
 		} catch (error) {
-			return {
-				user: null,
-				result: false,
-				errorCode: 500,
-				errorMessage: "An unexpected error occurred during user update"
-			};
+		  console.error("Error updating user: ", error);
+		  return { user: null, result: false, errorMessage: "Error updating user." };
 		}
-	}
+	  }
 
 	static async updateAvatar(userId: string, avatar: Express.Multer.File) {
 		// Update the user's avatar in the database as binary data
