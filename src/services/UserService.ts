@@ -145,7 +145,6 @@ export class UserService {
 
 			const user = new User();
 			Object.assign(user, existingUser);
-			user.Avatar = "[binary,...,..]";
 
 			return new Promise(resolve => {
 				userRepo.Save(

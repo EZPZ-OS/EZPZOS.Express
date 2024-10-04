@@ -13,7 +13,6 @@ import {
 } from "ezpzos.core";
 import { verifyOtpToken } from "../services/AuthService";
 import { UserService } from "../services/UserService";
-import prisma from "../services/PrismaService";
 
 const logger = new LogHandler("authController.ts");
 

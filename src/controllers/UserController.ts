@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from "express";
+import { Request, Response } from "express";
 import { LogHandler, LogLevel, User } from "ezpzos.core";
 import { UserService } from "../services/UserService";
 
