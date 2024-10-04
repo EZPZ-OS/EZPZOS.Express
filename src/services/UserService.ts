@@ -88,10 +88,11 @@ export class UserService {
 		}
 	}
 
-	static async getUserByMobile(mobile:string):Promise<UserType>{
+	static async getUserByMobile(mobile: string): Promise<UserType> {
 		const user = await prisma.user.findUnique({
-			where: { Mobile:mobile },
-			select: { Id: true,
+			where: { Mobile: mobile },
+			select: {
+				Id: true,
 				Username: true,
 				Password: true,
 				Salt: true,
@@ -101,13 +102,14 @@ export class UserService {
 				CreatedTimestamp: true,
 				CreatedUserId: true,
 				UpdatedTimestamp: true,
-				UpdatedUserId: true, },
+				UpdatedUserId: true
+			}
 		});
 		if (!user) {
 			throw new Error("User not found");
 		}
 		return user;
-	};
+	}
 
 	//update existed user in the database
 	static async updateUser(
@@ -143,9 +145,35 @@ export class UserService {
 			// Merge the updated fields into the existing user
 			Object.assign(existingUser, userData);
 
-			const user = new User();
+			let user = new User();
 			Object.assign(user, existingUser);
 
+			// Function to detect image MIME type
+			function detectMimeType(buffer: Buffer): string {
+				// JPEG magic numbers: FF D8 FF
+				if (buffer[0] === 0xff && buffer[1] === 0xd8 && buffer[2] === 0xff) {
+					return "image/jpeg";
+				}
+				// PNG magic numbers: 89 50 4E 47 0D 0A 1A 0A
+				if (buffer[0] === 0x89 && buffer[1] === 0x50 && buffer[2] === 0x4e && buffer[3] === 0x47) {
+					return "image/png";
+				}
+				// Add more checks for other image types if needed
+				return "";
+			}
+			// Check if avatar is a Buffer and convert to base64 string if necessary
+			if (Buffer.isBuffer(existingUser.Avatar)) {
+				const mimeType = detectMimeType(existingUser.Avatar);
+				const base64Avatar = existingUser.Avatar.toString("base64");
+
+				// If the mime type is detected, prepend the correct base64 prefix
+				if (mimeType) {
+					user.Avatar = `data:${mimeType};base64,${base64Avatar}`;
+				} else {
+					// Handle the case where the MIME type is unknown or unsupported
+					user.Avatar = base64Avatar; // This may not display correctly if the MIME type is not handled
+				}
+			}
 			return new Promise(resolve => {
 				userRepo.Save(
 					user,
@@ -178,8 +206,8 @@ export class UserService {
 		return prisma.user.update({
 			where: { Id: userId },
 			data: {
-				Avatar: avatar.buffer,
-			},
+				Avatar: avatar.buffer
+			}
 		});
 	}
 
@@ -187,7 +215,7 @@ export class UserService {
 		// Fetch the user's avatar from the database
 		const user = await prisma.user.findUnique({
 			where: { Id: userId },
-			select: { Avatar: true },
+			select: { Avatar: true }
 		});
 
 		if (!user) {

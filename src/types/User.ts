@@ -1,4 +1,5 @@
 export interface UpdateUser {
+	Id: string
 	Username: string
 	Email: string
 	Salt: string
