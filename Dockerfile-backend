@@ -1,0 +1,30 @@
+# 使用官方的 Node.js 镜像作为基础镜像
+FROM node:22-alpine
+
+# Create and set the working directory to /app
+WORKDIR /app
+
+# Copy the package.json and package-lock.json files
+
+COPY EZPZOS.Core /app/EZPZOS.Core
+COPY EZPZOS.Express /app/EZPZOS.Express
+
+
+RUN ls -l /app
+RUN ls -l EZPZOS.Core
+
+# Install dependencies
+
+RUN cd /app/EZPZOS.Core && npm install  && npm run build && \
+    cd /app/EZPZOS.Express && npm install && npm run build
+
+RUN ls -l /app
+RUN ls -l /app/EZPZOS.Core
+# # copy static file into container
+# COPY EZPZOS.Express/dist/ /app/dist/
+
+# Expose the application port
+EXPOSE 8000
+
+# Command to run the application
+CMD cd /app/EZPZOS.Express && npm start

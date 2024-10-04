@@ -1,0 +1,175 @@
+
+pipeline {
+    agent any
+    triggers {
+        githubPush() 
+    }
+    environment {
+        AWS_ACCOUNT_ID = '975049907995'
+        AWS_REGION = 'ap-southeast-2'
+        ECR_REPO_NAME = 'ezpzos-express'
+        CLUSTER_NAME = 'ezpzos-fargate-cluster'
+        SERVICE_NAME = 'ezpzos'
+        TASK_FAMILY = 'ezpzos-ec2-fargate'
+        ECR_REPO = '975049907995.dkr.ecr.ap-southeast-2.amazonaws.com'
+        IMAGE_TAG = 'latest'
+    }
+    tools {
+            nodejs 'NodeJS 22.6.0'
+    }
+
+    
+
+    stages {
+        stage('Checkout EZPZOS.Core') {
+            steps {
+                git credentialsId: 'Github-token', branch: 'DevOps-JoJo', url: 'git@github.com:EZPZ-OS/EZPZOS.Express.git'
+            }
+        }
+
+
+        
+
+        stage('Build EZPZOS.Core') {
+            steps {
+                dir('EZPZOS.Core') {
+                    sh 'npm install'
+                    // sh 'npm install --unsafe-perm '
+                    sh 'chmod +x ./node_modules/.bin/rimraf'
+                    sh 'chmod +x ./node_modules/.bin/tsc'
+                    sh 'chmod +x ./node_modules/.bin/babel'
+                    sh 'npm run build'
+                    echo 'Build core success'
+                }
+            }
+        }
+
+
+        stage('Build EZPZOS.Express') {
+            steps {
+                dir('EZPZOS.Express') {
+                    sh 'npm install'
+                    // sh 'npm install --unsafe-perm '
+                    sh 'npm run build'
+                    echo 'Build Express success'
+                    sh 'ls -la dist/'
+                }
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                echo 'Building Docker Image...'
+                script {
+                    sh 'docker --version'
+                    sh "docker build -t ${ECR_REPO_NAME}:${IMAGE_TAG} -f Dockerfile-backend ."
+                    echo 'Build docker success'
+                }
+            }
+        }
+
+        stage('Login to ECR') {
+            steps {
+                script {
+                    withCredentials([[
+                        $class: 'AmazonWebServicesCredentialsBinding',
+                        accessKeyVariable: 'AWS_ACCESS_KEY_ID',
+                        secretKeyVariable: 'AWS_SECRET_ACCESS_KEY',
+                        credentialsId: 'AWS'
+                    ]]) {
+                        sh '''
+                             export PATH=$PATH:/tmp/aws-cli-bin
+                             aws ecr get-login-password --region ap-southeast-2 | docker login --username AWS --password-stdin 975049907995.dkr.ecr.ap-southeast-2.amazonaws.com
+                        '''
+                    }
+                    echo 'ECR login success'
+                }
+            }
+        }
+
+        stage('Tag Docker Image') {
+            steps {
+                script {
+                    sh 'docker tag ${ECR_REPO_NAME}:${IMAGE_TAG} ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPO_NAME}:${IMAGE_TAG}'
+                }
+            }
+        }
+
+        stage('Push Docker Image to ECR') {
+            steps {
+                script {
+                    sh 'docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPO_NAME}:${IMAGE_TAG}'
+                    echo 'Push Docker image to ECR success'
+                }
+            }
+        }
+
+       
+
+        stage('Register Task Definition') {
+            steps {
+                script {
+                    withCredentials([[
+                        $class: 'AmazonWebServicesCredentialsBinding',
+                        accessKeyVariable: 'AWS_ACCESS_KEY_ID',
+                        secretKeyVariable: 'AWS_SECRET_ACCESS_KEY',
+                        credentialsId: 'AWS'
+                    ]]) {
+                        sh """
+                         aws ecs register-task-definition \
+                            --cli-input-json file://ezpzos-ec2-fargate-revision8.json
+                       """
+                       echo "Register Task Definition success"
+                    }
+                }
+            }
+        }
+
+        stage('Create ECS Service') {
+            steps {
+                script {
+                    withCredentials([[
+                        $class: 'AmazonWebServicesCredentialsBinding',
+                        accessKeyVariable: 'AWS_ACCESS_KEY_ID',
+                        secretKeyVariable: 'AWS_SECRET_ACCESS_KEY',
+                        credentialsId: 'AWS'
+                    ]]) {
+                        sh '''
+                        aws ecs create-service \
+                            --cluster ${CLUSTER_NAME} \
+                            --service-name ${SERVICE_NAME} \
+                            --task-definition ${TASK_FAMILY} \
+                            --desired-count 1 \
+                            --launch-type FARGATE \
+                            --network-configuration "awsvpcConfiguration={subnets=[subnet-01a256907cc59cd05, subnet-031c62d17c2856d9a],securityGroups=[sg-0e00f744e0b127d1e],assignPublicIp=ENABLED}" \
+                            --platform-version LATEST
+                        '''
+                        echo "Create ECS Service success"
+                    }
+                }
+            }
+        }
+
+        stage('Update ECS Service') {
+            steps {
+                script {
+                    withCredentials([[
+                        $class: 'AmazonWebServicesCredentialsBinding',
+                        accessKeyVariable: 'AWS_ACCESS_KEY_ID',
+                        secretKeyVariable: 'AWS_SECRET_ACCESS_KEY',
+                        credentialsId: 'AWS'
+                    ]]) {
+                        sh 'aws sts get-caller-identity'
+                        sh """
+                        aws ecs update-service \
+                            --cluster ${CLUSTER_NAME} \
+                            --service ${SERVICE_NAME} \
+                            --task-definition ${TASK_FAMILY}
+                        """
+                         echo "Update ECS Service success"
+                    }
+                }
+            }
+        }
+    } 
+} 
