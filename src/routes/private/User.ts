@@ -1,12 +1,11 @@
 import { Router } from "express";
-import { GetUsers, UpdateUser, UpdateUserTest } from "../../controllers/UserController";
+import { getUserAvatar,UpdateAvatar, UpdateUser } from "../../controllers/UserController";
+import { uploadImageMiddleware } from './../../middlewares/UploadImageMiddleware';
 
 const router: Router = Router();
 
-router.put("/update/:id", UpdateUser)
-
-//TODO: Remove these 2 route after testing and confirming prisma adoption
-router.put("/updateTest/:id", UpdateUserTest)
-router.get("", GetUsers)
+router.put("/:id", UpdateUser)
+router.put("/:id/avatar", uploadImageMiddleware, UpdateAvatar);
+router.get("/:id/avatar", getUserAvatar);
 
 export default router;

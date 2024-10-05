@@ -1,4 +1,5 @@
 export interface UpdateUser {
+	Id: string
 	Username: string
 	Email: string
 	Salt: string
@@ -11,7 +12,8 @@ export interface User {
 	Salt: string
 	Email: string
 	Mobile: string | null
-	Avatar: Buffer | null
+	// Avatar is intentionally excluded here to avoid returning it
+	// This is too long to be sending in a response, instead we can create a separate endpoint to get the avatar
 	IsDeleted: boolean
 	CreatedTimestamp: Date
 	CreatedUserId: string | null
