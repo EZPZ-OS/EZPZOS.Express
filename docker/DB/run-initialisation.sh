@@ -1,9 +1,9 @@
 #!/usr/bin/bash
 echo "Init DB..."
 #/sbin/ifconfig -a
-echo "Sleeping for 10s"
-sleep 10
-echo "slept for 10s"
+echo "Sleeping for 20s"
+sleep 20
+echo "slept for 20s"
 echo "Adding sqlcmd to path"
 PATH=$PATH:/opt/mssql-tools/bin/
 echo "Creating & Initailising DB EZPZOS"
