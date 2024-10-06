@@ -5,7 +5,7 @@ FROM node:22-alpine
 WORKDIR /app
 
 # Copy the package.json and package-lock.json files
-
+RUN apk add --no-cache curl
 COPY EZPZOS.Core /app/EZPZOS.Core
 COPY EZPZOS.Express /app/EZPZOS.Express
 
