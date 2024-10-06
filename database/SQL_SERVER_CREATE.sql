@@ -93,18 +93,6 @@ CREATE TABLE [dbo].[UserRole] (
 );
 
 -- CreateTable
-CREATE TABLE [dbo].[Image] (
-    [Id] UNIQUEIDENTIFIER NOT NULL,
-    [Name] NVARCHAR(500) NOT NULL,
-    [Path] NVARCHAR(1000) NOT NULL,
-    [Content] VARBINARY(max) NOT NULL,
-    [CuisineId] UNIQUEIDENTIFIER NOT NULL,
-    [CreatedTimestamp] DATETIME NOT NULL,
-    [UpdatedTimestamp] DATETIME,
-    CONSTRAINT [Image_pkey] PRIMARY KEY CLUSTERED ([Id])
-);
-
--- CreateTable
 CREATE TABLE [dbo].[HotSale] (
     [Id] UNIQUEIDENTIFIER NOT NULL,
     [SaleTimestamp] DATETIME NOT NULL,
@@ -122,6 +110,7 @@ CREATE TABLE [dbo].[Cuisine] (
     [Name] NVARCHAR(500) NOT NULL,
     [Description] NVARCHAR(500) NOT NULL,
     [Price] FLOAT(53) NOT NULL,
+    [Image] NVARCHAR(MAX) NOT NULL,
     [Category] NVARCHAR(500) NOT NULL,
     [IsAvailable] BIT NOT NULL,
     [EstimatedTime] INT NOT NULL,
