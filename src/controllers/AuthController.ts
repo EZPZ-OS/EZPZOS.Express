@@ -132,7 +132,7 @@ export const signup = async (req: SignupRequest, res: Response) => {
 
 		// Use UserService to create and save the user
 		const { user, result, errorCode, errorMessage } = await UserService.createUser({
-			Username: mobile,
+			Username: username,
 			Password: "",
 			Email: email,
 			Mobile: normalizedMobile
