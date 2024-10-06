@@ -75,6 +75,7 @@ CREATE TABLE [dbo].[Cuisine] (
     [Name] NVARCHAR(500) NOT NULL,
     [Description] NVARCHAR(500) NOT NULL,
     [Price] FLOAT(53) NOT NULL,
+    [Image] NVARCHAR(MAX) NOT NULL,
     [Category] NVARCHAR(500) NOT NULL,
     [IsAvailable] BIT NOT NULL,
     [EstimatedTime] INT NOT NULL,
