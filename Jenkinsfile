@@ -13,7 +13,7 @@ pipeline {
         stage('Git clone from EZPZOS'){
             steps{
                 script{
-                    withCredentials([string(credentialsId: 'git_credential', variable: 'git_credential')]){
+                    withCredentials([string(credentialsId: 'git_credential', variable: 'Github-token')]){
                         sh'''
                         git clone https://$git_credential@github.com/EZPZ-OS/EZPZOS.Core.git ../EZPZOS.Core
                         '''
