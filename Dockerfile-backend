@@ -16,7 +16,7 @@ RUN ls -l EZPZOS.Core
 # Install dependencies
 
 RUN cd /app/EZPZOS.Core && npm install  && npm run build && \
-    cd /app/EZPZOS.Express && npm install && npm run build
+cd /app/EZPZOS.Express && npm install && npm run build
 
 RUN ls -l /app
 RUN ls -l /app/EZPZOS.Core
@@ -25,6 +25,7 @@ RUN ls -l /app/EZPZOS.Core
 
 # Expose the application port
 EXPOSE 8000
+WORKDIR /app/EZPZOS.Express
 
 # Command to run the application
-CMD cd /app/EZPZOS.Express && npm start
+CMD npm start
