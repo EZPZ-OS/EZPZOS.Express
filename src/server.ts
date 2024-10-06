@@ -19,6 +19,7 @@ app.get('/', (req: Request, res: Response) => {
 });
 
 app.get("/health-check", (req: Request, res: Response) => {
+    res.status(200);
     res.send("ok");
 });
 
