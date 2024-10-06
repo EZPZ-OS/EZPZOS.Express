@@ -33,6 +33,12 @@ interface LoginRequest extends Request {
 	};
 }
 
+interface AdminLoginRequest extends Request {
+	body:{
+		mobile: string;
+	};
+}
+
 interface SendOtpRequest extends Request {
 	body: {
 		mobile: string;
@@ -161,6 +167,31 @@ export const mobileLogin = async (req: LoginRequest, res: Response) => {
 	// Verify the token and otpType
 	if (!verifyOtpToken(otpToken, SECRET_KEY, otpTarget, res)) return;
 
+	try {
+		// Normalize the phone number
+		const normalizer = new PhoneNumberNormalizer(mobile);
+		const normalizedMobile = normalizer.normalize();
+
+		const user = await UserService.getUserByMobile(normalizedMobile);
+		if (user) {
+			// Generate jwt token and pass user back to frontend
+			const token = jwt.sign({ ...user }, SECRET_KEY, {
+				expiresIn: JWTLoginTokenExpiringPeriod
+			});
+			logger.Log("mobileLogin", "User logged in successfully", LogLevel.INFO);
+			return res.status(200).send({ auth: true, token, user, message: "User logged in successfully" });
+		} else {
+			logger.Log("login", "User not found", LogLevel.WARN);
+			return res.status(404).send("User not found");
+		}
+	} catch (err) {
+		logger.Log("login", `Error: ${err}`, LogLevel.ERROR);
+		return res.status(500).send("Error during login");
+	}
+};
+
+export const adminLogin = async (req: AdminLoginRequest, res: Response) => {
+	let { mobile } = req.body;
 	try {
 		// Normalize the phone number
 		const normalizer = new PhoneNumberNormalizer(mobile);
