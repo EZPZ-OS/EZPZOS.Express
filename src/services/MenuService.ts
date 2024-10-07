@@ -15,17 +15,7 @@ export class MenuService {
 					IsAvailable: data.IsAvailable,
 					EstimatedTime: data.EstimatedTime,
 					CreatedTimestamp: new Date(),
-					Images: data.Images
-						? {
-								create: data.Images.map(image => ({
-									Name: image.Name,
-									Path: image.Path,
-									Content: image.Content,
-									CreatedTimestamp: new Date(),
-									UpdatedTimestamp: null
-								}))
-						  }
-						: undefined,
+					Image: data.Image,
 					HotSales: data.HotSales
 						? {
 								create: data.HotSales.map(hotSale => ({
@@ -55,12 +45,7 @@ export class MenuService {
 	// Get all cuisines
 	async getAllCuisines(): Promise<Cuisine[]> {
 		try {
-			const cuisines = await prisma.cuisine.findMany({
-				include: {
-					Images: true,
-					HotSales: true
-				}
-			});
+			const cuisines = await prisma.cuisine.findMany({});
 			return cuisines;
 		} catch (error) {
 			console.error("Failed to retrieve cuisines.");
@@ -72,11 +57,7 @@ export class MenuService {
 	async getCuisineById(id: string): Promise<Cuisine> {
 		try {
 			const cuisine = await prisma.cuisine.findUnique({
-				where: { Id: id },
-				include: {
-					Images: true,
-					HotSales: true
-				}
+				where: { Id: id }
 			});
 
 			if (!cuisine) {
@@ -103,30 +84,7 @@ export class MenuService {
 					IsAvailable: data.IsAvailable,
 					EstimatedTime: data.EstimatedTime,
 					UpdatedTimestamp: new Date(),
-					Images: data.Images
-						? {
-								create: data.Images.map(image => ({
-									Name: image.Name,
-									Path: image.Path,
-									Content: image.Content,
-									CreatedTimestamp: new Date()
-								}))
-						  }
-						: undefined,
-					HotSales: data.HotSales
-						? {
-								create: data.HotSales.map(hotSale => ({
-									HotSaleId: hotSale.HotSaleId,
-									Discount: hotSale.Discount,
-									Category: hotSale.Category,
-									CreatedTimestamp: new Date()
-								}))
-						  }
-						: undefined
-				},
-				include: {
-					Images: true,
-					HotSales: true
+					Image: data.Image
 				}
 			});
 

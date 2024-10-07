@@ -5,12 +5,11 @@ import {
 	DefaultJWTSecretKey,
 	LogHandler,
 	LogLevel,
-	User,
 	JWTLoginTokenExpiringPeriod,
 	PhoneNumberNormalizer,
 	OTPType,
 	DefaultOTPVerificationValues,
-	OTPTokenExpiringPeriod,
+	OTPTokenExpiringPeriod
 } from "ezpzos.core";
 import { verifyOtpToken } from "../services/AuthService";
 import { UserService } from "../services/UserService";
@@ -31,6 +30,12 @@ interface LoginRequest extends Request {
 		mobile: string;
 		otpToken: string;
 		otpTarget: OTPType;
+	};
+}
+
+interface AdminLoginRequest extends Request {
+	body:{
+		mobile: string;
 	};
 }
 
@@ -97,8 +102,8 @@ export const verifyOtp = async (req: VerifyOtpRequest, res: Response) => {
 			// Calculate expiration time (in seconds since Unix epoch)
 			const exp = Math.floor(Date.now() / 1000) + OTPTokenExpiringPeriod;
 
-            // Create a navigation attribute depends on the otpType for frontend to react accordingly
-			const otpTarget = otpType
+			// Create a navigation attribute depends on the otpType for frontend to react accordingly
+			const otpTarget = otpType;
 
 			// Send the token and expiration time back to the client
 			res.status(200).send({ message: "OTP verified successfully", otpToken, exp, otpTarget });
@@ -133,7 +138,7 @@ export const signup = async (req: SignupRequest, res: Response) => {
 
 		// Use UserService to create and save the user
 		const { user, result, errorCode, errorMessage } = await UserService.createUser({
-			Username: mobile,
+			Username: username,
 			Password: "",
 			Email: email,
 			Mobile: normalizedMobile
@@ -167,26 +172,43 @@ export const mobileLogin = async (req: LoginRequest, res: Response) => {
 		const normalizer = new PhoneNumberNormalizer(mobile);
 		const normalizedMobile = normalizer.normalize();
 
-		const repo = await UserService.getUserRepository();
+		const user = await UserService.getUserByMobile(normalizedMobile);
+		if (user) {
+			// Generate jwt token and pass user back to frontend
+			const token = jwt.sign({ ...user }, SECRET_KEY, {
+				expiresIn: JWTLoginTokenExpiringPeriod
+			});
+			logger.Log("mobileLogin", "User logged in successfully", LogLevel.INFO);
+			return res.status(200).send({ auth: true, token, user, message: "User logged in successfully" });
+		} else {
+			logger.Log("login", "User not found", LogLevel.WARN);
+			return res.status(404).send("User not found");
+		}
+	} catch (err) {
+		logger.Log("login", `Error: ${err}`, LogLevel.ERROR);
+		return res.status(500).send("Error during login");
+	}
+};
 
-		// Check if mobile exists in the database
-		repo.GetUserByMobile(
-			normalizedMobile,
-			(result: boolean, user: User | null | undefined, errorCode?: number, errorMessage?: string) => {
-				if (!result || !user) {
-					const status = errorCode || 404;
-					const message = errorMessage || "User not found";
-					logger.Log("login", "User not found", LogLevel.WARN);
-					return res.status(status).send({ error: message });
-				}
-				// Generate jwt token and pass user back to frontend
-				const token = jwt.sign({ ...user }, SECRET_KEY, {
-					expiresIn: JWTLoginTokenExpiringPeriod
-				});
-				logger.Log("login", "OTP verified successfully", LogLevel.INFO);
-				return res.status(200).send({ auth: true, token, user, message: "User login successfully" });
-			}
-		);
+export const adminLogin = async (req: AdminLoginRequest, res: Response) => {
+	let { mobile } = req.body;
+	try {
+		// Normalize the phone number
+		const normalizer = new PhoneNumberNormalizer(mobile);
+		const normalizedMobile = normalizer.normalize();
+
+		const user = await UserService.getUserByMobile(normalizedMobile);
+		if (user) {
+			// Generate jwt token and pass user back to frontend
+			const token = jwt.sign({ ...user }, SECRET_KEY, {
+				expiresIn: JWTLoginTokenExpiringPeriod
+			});
+			logger.Log("mobileLogin", "User logged in successfully", LogLevel.INFO);
+			return res.status(200).send({ auth: true, token, user, message: "User logged in successfully" });
+		} else {
+			logger.Log("login", "User not found", LogLevel.WARN);
+			return res.status(404).send("User not found");
+		}
 	} catch (err) {
 		logger.Log("login", `Error: ${err}`, LogLevel.ERROR);
 		return res.status(500).send("Error during login");

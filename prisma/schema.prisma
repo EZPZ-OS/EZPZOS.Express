@@ -62,21 +62,6 @@ model UserRole {
   User User @relation(fields: [UserId], references: [Id])
 }
 
-model Image {
-  Id               String    @id @default(uuid()) @map("Id") @db.UniqueIdentifier
-  Name             String    @map("Name") @db.NVarChar(500)
-  Path             String    @map("Path")
-  Content          Bytes     @map("Content") // Maps to binary data
-  CuisineId        String    @map("CuisineId") @db.UniqueIdentifier
-  CreatedTimestamp DateTime  @map("CreatedTimestamp") @db.DateTime
-  UpdatedTimestamp DateTime? @map("UpdatedTimestamp") @db.DateTime
-
-  // Relationships
-  Cuisine Cuisine @relation(fields: [CuisineId], references: [Id], name: "CuisineImages")
-
-  @@map("Image")
-}
-
 // Seasonal Discounts
 model HotSale {
   Id                String           @id @default(uuid()) @map("Id") @db.UniqueIdentifier
@@ -100,7 +85,7 @@ model Cuisine {
   Category         String           @map("Category") @db.NVarChar(500)
   IsAvailable      Boolean          @map("IsAvailable") @db.Bit
   EstimatedTime    Int              @map("EstimatedTime")
-  Images           Image[]          @relation("CuisineImages")
+  Image            String           @map("Image")
   HotSales         CuisineHotSale[] @relation("CuisineToHotSales")
   CreatedTimestamp DateTime         @map("CreatedTimestamp") @db.DateTime
   UpdatedTimestamp DateTime?        @map("UpdatedTimestamp") @db.DateTime

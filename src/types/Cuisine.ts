@@ -1,4 +1,4 @@
-import { Image, CuisineHotSale } from "@prisma/client";
+import { CuisineHotSale } from "@prisma/client";
 
 export interface Cuisine {
     Id: string;
@@ -8,7 +8,7 @@ export interface Cuisine {
     Category: string;
     IsAvailable: boolean;
     EstimatedTime: number;
-    Images?: Image[]; // Relation to many Images
+    Image: string; 
     HotSales?: CuisineHotSale[]; // Relation to many HotSales
     CreatedTimestamp: Date;
     UpdatedTimestamp: Date | null;

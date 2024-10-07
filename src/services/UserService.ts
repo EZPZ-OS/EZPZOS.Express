@@ -1,7 +1,6 @@
 import { RoleCode, RoleRepository, User, UserRepository, UserRole, UserRoleRepository } from "ezpzos.core";
 import prisma from "./PrismaService";
-import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
-import { UpdateUser, User as UserType } from "../types/User";
+import { User as UserType } from "../types/User";
 
 export class UserService {
 	// Utility method to get user repository
@@ -43,7 +42,7 @@ export class UserService {
 			Object.assign(user, userData);
 			user.Salt = "";
 			user.IsDeleted = false;
-			user.Avatar = "[binary,...,..]";
+			user.Avatar = "";
 
 			// Assign a user role before saving the user
 			const role = await roleRepo.GetRoleByCodePromise(RoleCode.User.toString());
@@ -89,107 +88,67 @@ export class UserService {
 		}
 	}
 
-	//update existed user in the database
-	static async updateUser(
-		userData: Partial<User>
-	): Promise<{ user: User | null; result: boolean; errorCode?: number; errorMessage?: string }> {
-		try {
-			const userRepo = await this.getUserRepository();
-
-			// Retrieve the existing user from the database
-			if (!userData.Id) {
-				return { user: null, result: false, errorCode: 404, errorMessage: "User ID is required for updating" };
+	static async getUserByMobile(mobile: string): Promise<UserType> {
+		const user = await prisma.user.findUnique({
+			where: { Mobile: mobile },
+			select: {
+				Id: true,
+				Username: true,
+				Password: true,
+				Salt: true,
+				Email: true,
+				Mobile: true,
+				IsDeleted: true,
+				CreatedTimestamp: true,
+				CreatedUserId: true,
+				UpdatedTimestamp: true,
+				UpdatedUserId: true
 			}
-
-			const existingUser = await new Promise<User | null>(resolve => {
-				userRepo.GetUserById(userData.Id!, (result: boolean, user: User | null | undefined) => {
-					if (result && user) {
-						resolve(user);
-					} else {
-						resolve(null);
-					}
-				});
-			});
-
-			if (!existingUser) {
-				return {
-					user: null,
-					result: false,
-					errorCode: 404,
-					errorMessage: "User not found"
-				};
-			}
-
-			// Merge the updated fields into the existing user
-			Object.assign(existingUser, userData);
-
-			const user = new User();
-			Object.assign(user, existingUser);
-			user.Avatar = "[binary,...,..]";
-
-			return new Promise(resolve => {
-				userRepo.Save(
-					user,
-					user.Id,
-					true, // Indicating an update operation
-					false,
-					(result: boolean, errorCode?: number, errorMessage?: string) => {
-						if (result) {
-							// If the user is successfully saved, resolve with the updated user object and result
-							resolve({ user: user, result, errorCode: undefined, errorMessage: undefined });
-						} else {
-							// If there was an error saving the user, resolve with error details
-							resolve({ user: null, result: false, errorCode, errorMessage });
-						}
-					}
-				);
-			});
-		} catch (error) {
-			return {
-				user: null,
-				result: false,
-				errorCode: 500,
-				errorMessage: "An unexpected error occurred during user update"
-			};
+		});
+		if (!user) {
+			throw new Error("User not found");
 		}
+		return user;
 	}
 
-	// TODO Remove this function after testing and confirming prisma adoption
-	static async updateUserTest(userId: string, userData: UpdateUser): Promise<UserType> {
+	static async updateUser(userId: string, userData: Partial<User>) {
 		try {
-			return await prisma.user.update({
-				where: {
-					Id: userId,
-				},
-				data: { ...userData },
-			});
+		  const updatedUser = await prisma.user.update({
+			where: { Id: userId },
+			data: {
+			  Username: userData.Username,
+			  Email: userData.Email,
+			  Mobile: userData.Mobile,
+			},
+		  });
+		  return { user: updatedUser, result: true };
 		} catch (error) {
-			if (error instanceof PrismaClientKnownRequestError) {
-				// Handle specific Prisma errors (e.g., database connection issues)
-				console.error("Prisma error:", error.message)
-				throw new Error("Error fetching users from database")
-			} else {
-				// Handle generic errors
-				console.error("Unexpected error:", error)
-				throw new Error("Something went wrong while fetching users")
-			}
+		  console.error("Error updating user: ", error);
+		  return { user: null, result: false, errorMessage: "Error updating user." };
 		}
+	  }
+
+	static async updateAvatar(userId: string, avatar: Express.Multer.File) {
+		// Update the user's avatar in the database as binary data
+		return prisma.user.update({
+			where: { Id: userId },
+			data: {
+				Avatar: avatar.buffer
+			}
+		});
 	}
 
-	// TODO Remove this function after testing and confirming prisma adoption
-	static async getUsers(): Promise<UserType[]> {
-		try {
-			return await prisma.user.findMany()
-		} catch (error) {
-			if (error instanceof PrismaClientKnownRequestError) {
-				// Handle specific Prisma errors (e.g., database connection issues)
-				console.error("Prisma error:", error.message)
-				throw new Error("Error fetching users from database")
-			} else {
-				// Handle generic errors
-				console.error("Unexpected error:", error)
-				throw new Error("Something went wrong while fetching users")
-			}
+	static async getUserAvatar(userId: string): Promise<Buffer | null> {
+		// Fetch the user's avatar from the database
+		const user = await prisma.user.findUnique({
+			where: { Id: userId },
+			select: { Avatar: true }
+		});
+
+		if (!user) {
+			throw new Error("User not found");
 		}
+
+		return user.Avatar;
 	}
 }
