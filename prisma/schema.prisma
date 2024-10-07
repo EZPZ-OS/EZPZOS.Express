@@ -85,7 +85,7 @@ model Cuisine {
   Category         String           @map("Category") @db.NVarChar(500)
   IsAvailable      Boolean          @map("IsAvailable") @db.Bit
   EstimatedTime    Int              @map("EstimatedTime")
-  Image            String           @map("Image")
+  Image            Bytes            @map("Image") @db.Image
   HotSales         CuisineHotSale[] @relation("CuisineToHotSales")
   CreatedTimestamp DateTime         @map("CreatedTimestamp") @db.DateTime
   UpdatedTimestamp DateTime?        @map("UpdatedTimestamp") @db.DateTime
