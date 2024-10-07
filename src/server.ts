@@ -10,7 +10,9 @@ dotenv.config();
 
 const port = process.env.PORT || DefaultPortNumber;
 const app: Express = express();
-app.use(express.json());
+// Increase payload size limit
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
 app.use(cors());
 
