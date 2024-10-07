@@ -69,3 +69,5 @@ VALUES
     NEWID() -- UpdatedUserId
 );
 
+ALTER TABLE Cuisine
+ALTER COLUMN Image NVARCHAR(MAX);
