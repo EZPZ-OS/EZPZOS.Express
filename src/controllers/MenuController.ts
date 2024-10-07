@@ -10,13 +10,13 @@ export const CreateCuisine = async (req: Request, res: Response) => {
 	try {
 		const data: Cuisine = req.body;
 		// Ensure the base64 string exists before processing
-		if (data.Image && typeof data.Image === 'string') {
-			// Convert base64 to a Buffer (binary data)
-			const binaryData = Buffer.from(data.Image, 'base64');
+		// if (data.Image && typeof data.Image === 'string') {
+		// 	// Convert base64 to a Buffer (binary data)
+		// 	const binaryData = Buffer.from(data.Image, 'base64');
 
-			// Replace or assign binary data to Image field (depending on your schema)
-			data.Image = binaryData;
-		}
+		// 	// Replace or assign binary data to Image field (depending on your schema)
+		// 	data.Image = binaryData;
+		// }
 
 		const newCuisine = await menuService.createCuisine(data);
 		res.status(201).json({ newCuisine, message: "Cuisine successfully created" });

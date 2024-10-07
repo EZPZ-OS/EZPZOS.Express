@@ -8,7 +8,7 @@ export interface Cuisine {
     Category: string;
     IsAvailable: boolean;
     EstimatedTime: number;
-    Image: Buffer; 
+    Image: string; 
     HotSales?: CuisineHotSale[]; // Relation to many HotSales
     CreatedTimestamp: Date;
     UpdatedTimestamp: Date | null;

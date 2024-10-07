@@ -2,7 +2,7 @@
 echo "Init DB..."
 #/sbin/ifconfig -a
 echo "Sleeping for 20s"
-sleep 20
+sleep 60
 echo "slept for 20s"
 echo "Adding sqlcmd to path"
 PATH=$PATH:/opt/mssql-tools/bin/
