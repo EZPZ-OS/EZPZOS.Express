@@ -75,37 +75,37 @@ pipeline {
                 }
             }
         }
-        // stage('Set Up Task Definition'){
-        //     steps{
-        //         script{
-        //             withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws_credentials']]){
-        //                 dir('../'){
-        //                     sh '''
-        //                         aws ecs describe-task-definition --task-definition --output json\
-        //                         $(aws ecs list-task-definitions --family-prefix ${TASK_DEFINITION} --query 'taskDefinitionArns[-1]' --output text) > latest_task_definition.json
-        //                         '''
-        //                 }
-        //             }
-        //         }
-        //     }
-        // }
-        // stage('Register ECS Service with Task Definition'){
-        //     steps{
-        //         script{
-        //             withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws_credentials']]){
-        //                 dir('../'){
-        //                     sh '''
-        //                         aws ecs update-service \
-        //                         --cluster "$CLUSTER_NAME"\
-        //                         --service "$SERVICE_NAME"\
-        //                         --task-definition "$(aws ecs list-task-definitions --family-prefix ezpzos-ec2-fargate --query 'taskDefinitionArns[-1]' --output text)"\
-        //                         --region "${AWS_REGION}"
-        //                         '''
-        //                 }
-        //             }
-        //         }
-        //     }
-        // }
+        stage('Set Up Task Definition'){
+            steps{
+                script{
+                    withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws_credentials']]){
+                        dir('../'){
+                            sh '''
+                                aws ecs describe-task-definition --task-definition --output json\
+                                $(aws ecs list-task-definitions --family-prefix ${TASK_DEFINITION} --query 'taskDefinitionArns[-1]' --output text) > latest_task_definition.json
+                                '''
+                        }
+                    }
+                }
+            }
+        }
+        stage('Register ECS Service with Task Definition'){
+            steps{
+                script{
+                    withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws_credentials']]){
+                        dir('../'){
+                            sh '''
+                                aws ecs update-service \
+                                --cluster "$CLUSTER_NAME"\
+                                --service "$SERVICE_NAME"\
+                                --task-definition "$(aws ecs list-task-definitions --family-prefix ezpzos-ec2-fargate --query 'taskDefinitionArns[-1]' --output text)"\
+                                --region "${AWS_REGION}"
+                                '''
+                        }
+                    }
+                }
+            }
+        }
         
    }
     post{
