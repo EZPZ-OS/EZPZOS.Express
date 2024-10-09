@@ -1,5 +1,51 @@
 # BE
 
+
+## Pre-requisite
+### Sqlcmd and Sqlservr
+to run on vm machine(e.g ubuntu, MacOs, Debian etc.), it needs to be installed [sqlcmd and sql server](https://learn.microsoft.com/en-us/sql/linux/sql-server-linux-setup-tools?view=sql-server-ver16&tabs=redhat-install)
+
+### setup sql
+```
+# Setup db type and user passoword
+sudo /opt/mssql/bin/mssql-conf setup
+# set mssql to bin
+echo 'export PATH="$PATH:/opt/mssql-tools18/bin"' >> ~/.bashrc
+source ~/.bashrc
+# run sqlcmd 
+sqlcmd -S localhost -U sa -P EZPZOSAdmin! -C
+```
+### setup Database
+after setting up sqlcmd and sql server, use sqlcmd set create database
+```
+sqlcmd -U sa -P EZPZOSAdmin! -d master -i database/SQL_SERVER_CREATE.sql
+sqlcmd -U sa -P EZPZOSAdmin! -d master -i database/Testing\ Data.sql
+``` 
+### Run and build EZPZOS.Express
+Before running EZPZOS.Express, EZPZOS.Core should be installed already.
+Then EZPZOS.Express is executed by running `npm install` and `npm run build`.
+
+Finally, run npm start then the Batabase can listen on port 8000 that defined in `.env`
+
+### Visual Studio Code extension
+
+#### Mandatory
+
+1. Jest by `Orta`
+2. Prettier - Code formatter by `Prettier`
+ <h3 style="color:Red">Warning: Any PR with format changes will be rejected. <br> Any PR without proper formatting will be rejected.</h3>
+3. TypeScript Debugger by `kakumei`
+
+#### Recommended
+
+1. Test Explorer UI by `Holger Benl`.
+2. React Native Tools by `Microsoft`
+3. Simple React Snippets by `Burke Holland`
+4. Markdown Preview Enhanced by `Yiyi Wang`
+5. #region folding for VS Code by `maptz`
+6. Todo Tree by `Gruntfuggly`
+
+
 ### Git Repository
 
 Make sure the following Git Repository is cloned:
